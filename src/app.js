@@ -34,6 +34,11 @@ const data = {
 let currentStep = 0;
 let currentDomain = 0;
 let container;
+const historyStack = [];
+
+function recordState() {
+    historyStack.push({ step: currentStep, domain: currentDomain });
+}
 
 function getProgressText() {
     if (currentStep === 1 || currentStep === 3) {
@@ -76,12 +81,14 @@ function createDomainCard(domain, progress) {
 }
 
 function nextStep() {
+    recordState();
     currentStep++;
     currentDomain = 0;
     render();
 }
 
 function nextDomain() {
+    recordState();
     currentDomain++;
     if (currentDomain >= domains.length) {
         nextStep();
@@ -90,8 +97,23 @@ function nextDomain() {
     }
 }
 
+function goBack() {
+    const prev = historyStack.pop();
+    if (!prev) return;
+    currentStep = prev.step;
+    currentDomain = prev.domain;
+    render();
+}
+
 function render() {
     container.innerHTML = '';
+    if (historyStack.length) {
+        const back = document.createElement('button');
+        back.id = 'back';
+        back.innerHTML = '\u2190';
+        back.onclick = goBack;
+        container.appendChild(back);
+    }
     if (currentStep === 0) renderInitialQuestion();
     else if (currentStep === 1) renderDifficultyPresence();
     else if (currentStep === 2) renderDifficultyIntensity();
