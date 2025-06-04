@@ -84,9 +84,9 @@ function renderDifficultyPresence() {
     form.innerHTML = `<h2>Difficultés</h2>`;
     const div = document.createElement('div');
     div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
-        `<label><input type="radio" name="diff" value="yes"> Problème</label> ` +
-        `<label><input type="radio" name="diff" value="no" checked> Pas de problème</label>`;
+    div.innerHTML = `<i class="fa ${d.icon} icon domain-icon"></i><strong>${d.label}</strong> ` +
+        `<label class="option"><input type="radio" name="diff" value="yes"> Problème <i class="fa fa-thumbs-down problem-icon"></i></label> ` +
+        `<label class="option"><input type="radio" name="diff" value="no" checked> Pas de problème <i class="fa fa-thumbs-up no-problem-icon"></i></label>`;
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
