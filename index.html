@@ -25,7 +25,7 @@ const domains = [
 ];
 const data = {
     initialQuestion: '',
-    difficulties: domains.map(() => ({presence:false, intensity:0})),
+    difficulties: domains.map(() => ({presence:false, intensity:0, note:''})),
     needs: domains.map(() => ({presence:false, urgency:0, origin:'?'})),
     priority:''
 };
@@ -96,16 +96,19 @@ function renderDifficultyIntensity() {
         div.innerHTML = `<strong>${d}</strong> ` +
             `<label><input type="radio" name="int${i}" value="1" checked> Peu important</label> ` +
             `<label><input type="radio" name="int${i}" value="2"> Important</label> ` +
-            `<label><input type="radio" name="int${i}" value="3"> Très important</label>`;
+            `<label><input type="radio" name="int${i}" value="3"> Très important</label><br>` +
+            `<textarea id="note${i}" rows="2" cols="40" placeholder="Notes...">${data.difficulties[i].note}</textarea>`;
         form.appendChild(div);
     });
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         domains.forEach((d, i) => {
-            if (!data.difficulties[i].presence) return;
+            if (!data.difficulties[i].presence) { data.difficulties[i].note = ''; return; }
             const val = document.querySelector(`input[name=int${i}]:checked`).value;
             data.difficulties[i].intensity = parseInt(val, 10);
+            const noteVal = document.getElementById(`note${i}`).value;
+            data.difficulties[i].note = noteVal;
         });
         nextStep();
     };
@@ -148,7 +151,8 @@ function renderNeedUrgency() {
         div.innerHTML = `<strong>${d}</strong> ` +
             `<label><input type="radio" name="urg${i}" value="1" checked> Non urgent</label> ` +
             `<label><input type="radio" name="urg${i}" value="2"> Moyennement urgent</label> ` +
-            `<label><input type="radio" name="urg${i}" value="3"> Urgent</label>`;
+            `<label><input type="radio" name="urg${i}" value="3"> Urgent</label><br>` +
+            `<textarea id="note${i}" rows="2" cols="40" placeholder="Notes...">${data.difficulties[i].note}</textarea>`;
         form.appendChild(div);
     });
     const btn = document.createElement('button');
@@ -158,6 +162,8 @@ function renderNeedUrgency() {
             if (!data.needs[i].presence) return;
             const val = document.querySelector(`input[name=urg${i}]:checked`).value;
             data.needs[i].urgency = parseInt(val, 10);
+            const noteVal = document.getElementById(`note${i}`).value;
+            data.difficulties[i].note = noteVal;
         });
         nextStep();
     };
@@ -212,12 +218,13 @@ function renderResults() {
     const div = document.createElement('div');
     div.innerHTML = '<h2>Résultats</h2>';
     const table = document.createElement('table');
-    const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th></tr>';
+    const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th><th>Notes</th></tr>';
     table.innerHTML = header + domains.map((d, i) => {
         const diff = data.difficulties[i].intensity;
         const need = data.needs[i].urgency;
         const orig = data.needs[i].origin;
-        return `<tr><td>${d}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
+        const note = data.difficulties[i].note;
+        return `<tr><td>${d}</td><td>${diff}</td><td>${need}</td><td>${orig}</td><td>${note}</td></tr>`;
     }).join('');
     div.appendChild(table);
 
