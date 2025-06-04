@@ -1,27 +1,27 @@
 // JavaScript logic extracted from index.html
 
 const domains = [
-    { label: "Lieu de vie", icon: "fa-home" },
-    { label: "Finances", icon: "fa-euro-sign" },
-    { label: "Travail", icon: "fa-briefcase" },
-    { label: "Droit & justice", icon: "fa-gavel" },
-    { label: "Temps libre", icon: "fa-clock" },
-    { label: "Tâches administratives", icon: "fa-file-alt" },
-    { label: "Entretien du ménage", icon: "fa-broom" },
-    { label: "Déplacements", icon: "fa-bus" },
-    { label: "Fréquentation des lieux publics", icon: "fa-store" },
-    { label: "Connaissances et amitiés", icon: "fa-user-friends" },
-    { label: "Famille", icon: "fa-house-user" },
-    { label: "Enfants", icon: "fa-child" },
-    { label: "Relations sentimentales", icon: "fa-heart" },
-    { label: "Alimentation", icon: "fa-utensils" },
-    { label: "Hygiène personnelle", icon: "fa-shower" },
-    { label: "Santé physique", icon: "fa-heartbeat" },
-    { label: "Santé psychique", icon: "fa-brain" },
-    { label: "Addiction", icon: "fa-wine-bottle" },
-    { label: "Traitement", icon: "fa-pills" },
-    { label: "Spiritualité & croyances", icon: "fa-pray" },
-    { label: "Sexualité", icon: "fa-venus-mars" }
+    { label: "Lieu de vie", icons: ["fa-home", "fa-bed", "fa-tree"] },
+    { label: "Finances", icons: ["fa-euro-sign", "fa-wallet", "fa-money-bill"] },
+    { label: "Travail", icons: ["fa-briefcase", "fa-users", "fa-chart-line"] },
+    { label: "Droit & justice", icons: ["fa-gavel", "fa-balance-scale", "fa-file-contract"] },
+    { label: "Temps libre", icons: ["fa-clock", "fa-futbol", "fa-book"] },
+    { label: "Tâches administratives", icons: ["fa-file-alt", "fa-envelope", "fa-folder-open"] },
+    { label: "Entretien du ménage", icons: ["fa-broom", "fa-soap", "fa-trash"] },
+    { label: "Déplacements", icons: ["fa-bus", "fa-car", "fa-bicycle"] },
+    { label: "Fréquentation des lieux publics", icons: ["fa-store", "fa-shopping-cart", "fa-landmark"] },
+    { label: "Connaissances et amitiés", icons: ["fa-user-friends", "fa-handshake", "fa-users"] },
+    { label: "Famille", icons: ["fa-house-user", "fa-people-roof", "fa-children"] },
+    { label: "Enfants", icons: ["fa-child", "fa-baby", "fa-school"] },
+    { label: "Relations sentimentales", icons: ["fa-heart", "fa-ring", "fa-kiss-wink-heart"] },
+    { label: "Alimentation", icons: ["fa-utensils", "fa-carrot", "fa-apple-alt"] },
+    { label: "Hygiène personnelle", icons: ["fa-shower", "fa-soap", "fa-tooth"] },
+    { label: "Santé physique", icons: ["fa-heartbeat", "fa-stethoscope", "fa-dumbbell"] },
+    { label: "Santé psychique", icons: ["fa-brain", "fa-face-smile", "fa-comment-dots"] },
+    { label: "Addiction", icons: ["fa-wine-bottle", "fa-smoking", "fa-cannabis"] },
+    { label: "Traitement", icons: ["fa-pills", "fa-syringe", "fa-prescription-bottle-medical"] },
+    { label: "Spiritualité & croyances", icons: ["fa-pray", "fa-place-of-worship", "fa-book-bible"] },
+    { label: "Sexualité", icons: ["fa-venus-mars", "fa-heart", "fa-kiss"] }
 ];
 
 const data = {
@@ -34,6 +34,23 @@ const data = {
 let currentStep = 0;
 let currentDomain = 0;
 let container;
+
+function createDomainCard(domain) {
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    const icons = document.createElement('div');
+    icons.className = 'domain-icons';
+    (domain.icons || []).forEach(ic => {
+        const i = document.createElement('i');
+        i.className = `fa ${ic} domain-icon`;
+        icons.appendChild(i);
+    });
+    div.appendChild(icons);
+    const title = document.createElement('strong');
+    title.textContent = domain.label;
+    div.appendChild(title);
+    return div;
+}
 
 function nextStep() {
     currentStep++;
@@ -82,11 +99,12 @@ function renderDifficultyPresence() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
-    const div = document.createElement('div');
-    div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon domain-icon"></i><strong>${d.label}</strong> ` +
+    const div = createDomainCard(d);
+    const opts = document.createElement('div');
+    opts.innerHTML =
         `<label class="option"><input type="radio" name="diff" value="yes"> Problème <i class="fa fa-thumbs-down problem-icon"></i></label> ` +
         `<label class="option"><input type="radio" name="diff" value="no" checked> Pas de problème <i class="fa fa-thumbs-up no-problem-icon"></i></label>`;
+    div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -111,12 +129,13 @@ function renderDifficultyIntensity() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Difficultés : importance du problème</h2>';
-    const div = document.createElement('div');
-    div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+    const div = createDomainCard(d);
+    const opts = document.createElement('div');
+    opts.innerHTML =
         `<label><input type="radio" name="int" value="1" checked> Peu important</label> ` +
         `<label><input type="radio" name="int" value="2"> Important</label> ` +
         `<label><input type="radio" name="int" value="3"> Très important</label>`;
+    div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -137,11 +156,12 @@ function renderNeedPresence() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
-    const div = document.createElement('div');
-    div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+    const div = createDomainCard(d);
+    const opts = document.createElement('div');
+    opts.innerHTML =
         `<label><input type="radio" name="need" value="yes"> Besoin</label> ` +
         `<label><input type="radio" name="need" value="no" checked> Pas besoin</label>`;
+    div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -166,12 +186,13 @@ function renderNeedUrgency() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
-    const div = document.createElement('div');
-    div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+    const div = createDomainCard(d);
+    const opts = document.createElement('div');
+    opts.innerHTML =
         `<label><input type="radio" name="urg" value="1" checked> Non urgent</label> ` +
         `<label><input type="radio" name="urg" value="2"> Moyennement urgent</label> ` +
         `<label><input type="radio" name="urg" value="3"> Urgent</label>`;
+    div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -195,15 +216,16 @@ function renderNeedOrigin() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
-    const div = document.createElement('div');
-    div.className = 'domain-item';
-    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+    const div = createDomainCard(d);
+    const opts = document.createElement('div');
+    opts.innerHTML =
         `<select id="orig">` +
         `<option value="P">Professionnels</option>` +
         `<option value="F">Famille</option>` +
         `<option value="E">Entourage</option>` +
         `<option value="?" selected>Non précisé</option>` +
         `</select>`;
+    div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
