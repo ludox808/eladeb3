@@ -7,3 +7,18 @@ The results page summarises scores by thematic domain and stores each evaluation
 ## Running
 
 Open `index.html` in any modern browser. No build step is required.
+
+## Python visualisation
+
+A standalone script `plot_eladeb.py` can generate a horizontal bar chart of the
+domain scores using `matplotlib`. The script reproduces the "Évaluation ELADEB-R"
+visualisation with coloured bars, numeric values and thematic groupings.
+
+Run it with:
+
+```bash
+python plot_eladeb.py
+```
+
+This will create `eladeb_bar_chart.png` in the repository root and display the
+chart if a graphical environment is available.
