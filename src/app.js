@@ -100,21 +100,27 @@ function renderDifficultyPresence() {
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
     const div = createDomainCard(d);
-    const opts = document.createElement('div');
-    opts.innerHTML =
-        `<label class="option"><input type="radio" name="diff" value="yes"> Problème <i class="fa fa-thumbs-down problem-icon"></i></label> ` +
-        `<label class="option"><input type="radio" name="diff" value="no" checked> Pas de problème <i class="fa fa-thumbs-up no-problem-icon"></i></label>`;
-    div.appendChild(opts);
-    form.appendChild(div);
-    const btn = document.createElement('button');
-    btn.textContent = 'Suivant';
-    btn.onclick = () => {
-        const val = document.querySelector('input[name=diff]:checked').value;
-        data.difficulties[currentDomain].presence = val === 'yes';
-        if (!data.difficulties[currentDomain].presence) data.difficulties[currentDomain].intensity = 0;
+    const buttons = document.createElement('div');
+    buttons.className = 'diff-buttons';
+    const probBtn = document.createElement('button');
+    probBtn.className = 'diff-btn diff-problem';
+    probBtn.textContent = 'Problème';
+    probBtn.onclick = () => {
+        data.difficulties[currentDomain].presence = true;
         nextDomain();
     };
-    form.appendChild(btn);
+    const noProbBtn = document.createElement('button');
+    noProbBtn.className = 'diff-btn diff-no-problem';
+    noProbBtn.textContent = 'Pas de problème';
+    noProbBtn.onclick = () => {
+        data.difficulties[currentDomain].presence = false;
+        data.difficulties[currentDomain].intensity = 0;
+        nextDomain();
+    };
+    buttons.appendChild(probBtn);
+    buttons.appendChild(noProbBtn);
+    div.appendChild(buttons);
+    form.appendChild(div);
     container.appendChild(form);
 }
 
