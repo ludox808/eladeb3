@@ -271,7 +271,8 @@ function saveResults() {
 
 function renderResults() {
     const div = document.createElement('div');
-    div.innerHTML = '<h2>Résultats</h2>';
+    div.className = 'results';
+    div.innerHTML = '<h2>R\xE9sultats d\xE9taill\xE9s</h2>';
 
     const code = saveResults();
     const codeP = document.createElement('p');
@@ -279,12 +280,13 @@ function renderResults() {
     div.appendChild(codeP);
 
     const table = document.createElement('table');
-    const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th></tr>';
+    const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th></tr>';
     table.innerHTML = header + domains.map((d, i) => {
         const diff = data.difficulties[i].intensity;
         const need = data.needs[i].urgency;
         const orig = data.needs[i].origin;
-        return `<tr><td>${d.label}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
+        const cls = (diff >= 3 || need >= 3) ? ' class="high"' : '';
+        return `<tr${cls}><td>${d.label}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
     }).join('');
     div.appendChild(table);
 
@@ -295,10 +297,16 @@ function renderResults() {
         themeScores[d.theme].need += data.needs[i].urgency;
     });
     const summary = document.createElement('ul');
+    const themeLabels = [];
+    const themeDiff = [];
+    const themeNeed = [];
     Object.keys(themeScores).forEach(t => {
         const li = document.createElement('li');
-        li.textContent = `${t} - Difficulté: ${themeScores[t].diff}, Besoin: ${themeScores[t].need}`;
+        li.textContent = `${t} - Difficult\xE9: ${themeScores[t].diff}, Besoin: ${themeScores[t].need}`;
         summary.appendChild(li);
+        themeLabels.push(t);
+        themeDiff.push(themeScores[t].diff);
+        themeNeed.push(themeScores[t].need);
     });
     div.appendChild(summary);
 
@@ -317,22 +325,50 @@ function renderResults() {
     }
 
     const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = domains.length * 25 + 20;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#eee';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    domains.forEach((d, i) => {
-        const y = i * 25 + 15;
-        ctx.fillStyle = '#000';
-        ctx.fillText(d.label, 10, y);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(200, y - 10, data.difficulties[i].intensity * 40, 10);
-        ctx.fillStyle = '#2196F3';
-        ctx.fillRect(350, y - 10, data.needs[i].urgency * 40, 10);
-    });
+    canvas.id = 'resultChart';
     div.appendChild(canvas);
+    const themeCanvas = document.createElement('canvas');
+    themeCanvas.id = 'themeChart';
+    div.appendChild(themeCanvas);
     container.appendChild(div);
+
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: domains.map(d => d.label),
+            datasets: [
+                {
+                    label: 'Difficult\xE9',
+                    backgroundColor: '#4CAF50',
+                    data: domains.map((d,i) => data.difficulties[i].intensity)
+                },
+                {
+                    label: 'Besoin',
+                    backgroundColor: '#2196F3',
+                    data: domains.map((d,i) => data.needs[i].urgency)
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, max: 3 } }
+        }
+    });
+
+    new Chart(themeCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: themeLabels,
+            datasets: [
+                { label: 'Difficult\xE9', backgroundColor: '#4CAF50', data: themeDiff },
+                { label: 'Besoin', backgroundColor: '#2196F3', data: themeNeed }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
 }
 
 // Wait for the DOM to be fully loaded before initializing
