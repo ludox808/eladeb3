@@ -82,10 +82,10 @@ function createDomainCard(domain, progress) {
 
 function nextStep() {
     recordState();
-    nextStepNoRecord();
+    advanceStep();
 }
 
-function nextStepNoRecord() {
+function advanceStep() {
     currentStep++;
     currentDomain = 0;
     render();
@@ -95,7 +95,7 @@ function nextDomain() {
     recordState();
     currentDomain++;
     if (currentDomain >= domains.length) {
-        nextStepNoRecord();
+        advanceStep();
     } else {
         render();
     }
