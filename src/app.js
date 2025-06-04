@@ -34,6 +34,7 @@ const data = {
 let currentStep = 0;
 let currentDomain = 0;
 let container;
+const history = [];
 
 function createDomainCard(domain) {
     const div = document.createElement('div');
@@ -52,19 +53,42 @@ function createDomainCard(domain) {
     return div;
 }
 
+function createNav() {
+    const nav = document.createElement('div');
+    nav.className = 'nav';
+    if (history.length > 0) {
+        const back = document.createElement('button');
+        back.innerHTML = '<i class="fa fa-arrow-left"></i>';
+        back.onclick = prev;
+        nav.appendChild(back);
+    }
+    return nav;
+}
+
 function nextStep() {
+    history.push({ step: currentStep, domain: currentDomain });
     currentStep++;
     currentDomain = 0;
     render();
 }
 
 function nextDomain() {
+    const prev = { step: currentStep, domain: currentDomain };
     currentDomain++;
     if (currentDomain >= domains.length) {
-        nextStep();
-    } else {
-        render();
+        currentStep++;
+        currentDomain = 0;
     }
+    history.push(prev);
+    render();
+}
+
+function prev() {
+    if (history.length === 0) return;
+    const state = history.pop();
+    currentStep = state.step;
+    currentDomain = state.domain;
+    render();
 }
 
 function render() {
@@ -81,6 +105,7 @@ function render() {
 
 function renderInitialQuestion() {
     const div = document.createElement('div');
+    div.appendChild(createNav());
     div.innerHTML = '<p>Quel est pour vous le problème le plus important actuellement ?</p>' +
         '<textarea id="question" rows="3" cols="60"></textarea><br>' +
         '<button id="next">Suivant</button>';
@@ -98,6 +123,7 @@ function renderDifficultyPresence() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
+    form.appendChild(createNav());
     form.innerHTML = `<h2>Difficultés</h2>`;
     const div = createDomainCard(d);
     const buttons = document.createElement('div');
@@ -136,7 +162,10 @@ function renderDifficultyIntensity() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Difficultés : importance du problème</h2>';
+    form.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = 'Difficultés : importance du problème';
+    form.appendChild(title);
     const div = createDomainCard(d);
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -163,7 +192,10 @@ function renderNeedPresence() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
+    form.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = "Besoin d'aide supplémentaire ?";
+    form.appendChild(title);
     const div = createDomainCard(d);
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -193,7 +225,10 @@ function renderNeedUrgency() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
+    form.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = "Urgence de l'aide souhaitée";
+    form.appendChild(title);
     const div = createDomainCard(d);
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -223,7 +258,10 @@ function renderNeedOrigin() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
+    form.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = "Origine de l'aide souhaitée";
+    form.appendChild(title);
     const div = createDomainCard(d);
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -248,10 +286,23 @@ function renderNeedOrigin() {
 
 function renderPriority() {
     const div = document.createElement('div');
-    div.innerHTML = '<h2>Besoin prioritaire</h2>' +
-        '<p>Si on ne pouvait faire qu\'une seule chose pour vous, laquelle choisiriez-vous ?</p>' +
-        '<textarea id="priority" rows="3" cols="60"></textarea><br>' +
-        '<button id="next">Terminer</button>';
+    div.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = 'Besoin prioritaire';
+    div.appendChild(title);
+    const p = document.createElement('p');
+    p.textContent = "Si on ne pouvait faire qu'une seule chose pour vous, laquelle choisiriez-vous ?";
+    div.appendChild(p);
+    const textarea = document.createElement('textarea');
+    textarea.id = 'priority';
+    textarea.rows = 3;
+    textarea.cols = 60;
+    div.appendChild(textarea);
+    div.appendChild(document.createElement('br'));
+    const btnFinish = document.createElement('button');
+    btnFinish.id = 'next';
+    btnFinish.textContent = 'Terminer';
+    div.appendChild(btnFinish);
     container.appendChild(div);
     document.getElementById('next').onclick = () => {
         data.priority = document.getElementById('priority').value;
@@ -274,7 +325,10 @@ function saveResults() {
 function renderResults() {
     const div = document.createElement('div');
     div.className = 'results';
-    div.innerHTML = '<h2>R\xE9sultats d\xE9taill\xE9s</h2>';
+    div.appendChild(createNav());
+    const title = document.createElement('h2');
+    title.textContent = 'R\u00E9sultats d\u00E9taill\u00E9s';
+    div.appendChild(title);
 
     const code = saveResults();
     const codeP = document.createElement('p');
@@ -342,6 +396,10 @@ function renderResults() {
     const themeCanvas = document.createElement('canvas');
     themeCanvas.id = 'themeChart';
     div.appendChild(themeCanvas);
+    const printBtn = document.createElement('button');
+    printBtn.textContent = 'Imprimer en PDF';
+    printBtn.onclick = () => window.print();
+    div.appendChild(printBtn);
     container.appendChild(div);
 
     new Chart(canvas.getContext('2d'), {
