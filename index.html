@@ -4,20 +4,51 @@
     <meta charset="UTF-8">
     <title>ELADEB-R Auto-évaluation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
             margin: 20px auto;
             max-width: 700px;
-            line-height: 1.4;
+            line-height: 1.6;
         }
-        h1 { text-align: center; }
+        h1 {
+            text-align: center;
+            color: #2196F3;
+        }
         .hidden { display: none; }
-        .domain-item { margin-bottom: 20px; }
+        .domain-item {
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         button {
+            background-color: #4CAF50;
+            color: #fff;
             padding: 10px 20px;
             font-size: 16px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+        }
+        button:hover { background-color: #45a049; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2196F3;
+            color: #fff;
         }
         .chart-bar { background: #4CAF50; height: 20px; margin: 2px 0; }
         .chart-bar.need { background: #2196F3; }
