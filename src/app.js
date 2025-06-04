@@ -320,8 +320,9 @@ function renderResults() {
         if (need > 0) needClasses.push(`val-${need}`);
         if (need === maxUrg && need > 0) needClasses.push('high-urgency');
         const needCls = needClasses.length ? ` class="${needClasses.join(' ')}"` : '';
+        const needDisplay = data.needs[i].presence ? need : '—';
 
-        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${need}</td><td>${orig}</td></tr>`;
+        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td></tr>`;
     }).join('');
     div.appendChild(table);
 
