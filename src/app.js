@@ -1,27 +1,53 @@
 // JavaScript logic extracted from index.html
 
 const domains = [
-    "Lieu de vie", "Finances", "Travail", "Droit & justice",
-    "Temps libre", "Tâches administratives", "Entretien du ménage", "Déplacements", "Fréquentation des lieux publics",
-    "Connaissances et amitiés", "Famille", "Enfants", "Relations sentimentales",
-    "Alimentation", "Hygiène personnelle", "Santé physique", "Santé psychique",
-    "Addiction", "Traitement", "Spiritualité & croyances",
-    "Sexualité"
+    { label: "Lieu de vie", icon: "fa-home" },
+    { label: "Finances", icon: "fa-euro-sign" },
+    { label: "Travail", icon: "fa-briefcase" },
+    { label: "Droit & justice", icon: "fa-gavel" },
+    { label: "Temps libre", icon: "fa-clock" },
+    { label: "Tâches administratives", icon: "fa-file-alt" },
+    { label: "Entretien du ménage", icon: "fa-broom" },
+    { label: "Déplacements", icon: "fa-bus" },
+    { label: "Fréquentation des lieux publics", icon: "fa-store" },
+    { label: "Connaissances et amitiés", icon: "fa-user-friends" },
+    { label: "Famille", icon: "fa-house-user" },
+    { label: "Enfants", icon: "fa-child" },
+    { label: "Relations sentimentales", icon: "fa-heart" },
+    { label: "Alimentation", icon: "fa-utensils" },
+    { label: "Hygiène personnelle", icon: "fa-shower" },
+    { label: "Santé physique", icon: "fa-heartbeat" },
+    { label: "Santé psychique", icon: "fa-brain" },
+    { label: "Addiction", icon: "fa-wine-bottle" },
+    { label: "Traitement", icon: "fa-pills" },
+    { label: "Spiritualité & croyances", icon: "fa-pray" },
+    { label: "Sexualité", icon: "fa-venus-mars" }
 ];
 
 const data = {
     initialQuestion: '',
-    difficulties: domains.map(() => ({presence:false, intensity:0})),
-    needs: domains.map(() => ({presence:false, urgency:0, origin:'?'})),
-    priority:''
+    difficulties: domains.map(() => ({ presence: false, intensity: 0 })),
+    needs: domains.map(() => ({ presence: false, urgency: 0, origin: '?' })),
+    priority: ''
 };
 
 let currentStep = 0;
+let currentDomain = 0;
 let container;
 
 function nextStep() {
     currentStep++;
+    currentDomain = 0;
     render();
+}
+
+function nextDomain() {
+    currentDomain++;
+    if (currentDomain >= domains.length) {
+        nextStep();
+    } else {
+        render();
+    }
 }
 
 function render() {
@@ -49,134 +75,142 @@ function renderInitialQuestion() {
 }
 
 function renderDifficultyPresence() {
+    if (currentDomain >= domains.length) {
+        nextStep();
+        return;
+    }
+    const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Difficultés : ces domaines posent-ils problème ?</h2>';
-    domains.forEach((d, i) => {
-        const div = document.createElement('div');
-        div.className = 'domain-item';
-        div.innerHTML = `<strong>${d}</strong> ` +
-            `<label><input type="radio" name="diff${i}" value="yes"> Problème</label> ` +
-            `<label><input type="radio" name="diff${i}" value="no" checked> Pas de problème</label>`;
-        form.appendChild(div);
-    });
+    form.innerHTML = `<h2>Difficultés</h2>`;
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+        `<label><input type="radio" name="diff" value="yes"> Problème</label> ` +
+        `<label><input type="radio" name="diff" value="no" checked> Pas de problème</label>`;
+    form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
-        domains.forEach((d, i) => {
-            const val = document.querySelector(`input[name=diff${i}]:checked`).value;
-            data.difficulties[i].presence = val === 'yes';
-            if (!data.difficulties[i].presence) data.difficulties[i].intensity = 0;
-        });
-        nextStep();
+        const val = document.querySelector('input[name=diff]:checked').value;
+        data.difficulties[currentDomain].presence = val === 'yes';
+        if (!data.difficulties[currentDomain].presence) data.difficulties[currentDomain].intensity = 0;
+        nextDomain();
     };
     form.appendChild(btn);
     container.appendChild(form);
 }
 
 function renderDifficultyIntensity() {
+    while (currentDomain < domains.length && !data.difficulties[currentDomain].presence) {
+        currentDomain++;
+    }
+    if (currentDomain >= domains.length) {
+        nextStep();
+        return;
+    }
+    const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Difficultés : importance des problèmes</h2>';
-    domains.forEach((d, i) => {
-        if (!data.difficulties[i].presence) return;
-        const div = document.createElement('div');
-        div.className = 'domain-item';
-        div.innerHTML = `<strong>${d}</strong> ` +
-            `<label><input type="radio" name="int${i}" value="1" checked> Peu important</label> ` +
-            `<label><input type="radio" name="int${i}" value="2"> Important</label> ` +
-            `<label><input type="radio" name="int${i}" value="3"> Très important</label>`;
-        form.appendChild(div);
-    });
+    form.innerHTML = '<h2>Difficultés : importance du problème</h2>';
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+        `<label><input type="radio" name="int" value="1" checked> Peu important</label> ` +
+        `<label><input type="radio" name="int" value="2"> Important</label> ` +
+        `<label><input type="radio" name="int" value="3"> Très important</label>`;
+    form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
-        domains.forEach((d, i) => {
-            if (!data.difficulties[i].presence) return;
-            const val = document.querySelector(`input[name=int${i}]:checked`).value;
-            data.difficulties[i].intensity = parseInt(val, 10);
-        });
-        nextStep();
+        const val = document.querySelector('input[name=int]:checked').value;
+        data.difficulties[currentDomain].intensity = parseInt(val, 10);
+        nextDomain();
     };
     form.appendChild(btn);
     container.appendChild(form);
 }
 
 function renderNeedPresence() {
+    if (currentDomain >= domains.length) {
+        nextStep();
+        return;
+    }
+    const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
-    domains.forEach((d, i) => {
-        const div = document.createElement('div');
-        div.className = 'domain-item';
-        div.innerHTML = `<strong>${d}</strong> ` +
-            `<label><input type="radio" name="need${i}" value="yes"> Besoin</label> ` +
-            `<label><input type="radio" name="need${i}" value="no" checked> Pas besoin</label>`;
-        form.appendChild(div);
-    });
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+        `<label><input type="radio" name="need" value="yes"> Besoin</label> ` +
+        `<label><input type="radio" name="need" value="no" checked> Pas besoin</label>`;
+    form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
-        domains.forEach((d, i) => {
-            const val = document.querySelector(`input[name=need${i}]:checked`).value;
-            data.needs[i].presence = val === 'yes';
-            if (!data.needs[i].presence) { data.needs[i].urgency = 0; data.needs[i].origin = '?'; }
-        });
-        nextStep();
+        const val = document.querySelector('input[name=need]:checked').value;
+        data.needs[currentDomain].presence = val === 'yes';
+        if (!data.needs[currentDomain].presence) { data.needs[currentDomain].urgency = 0; data.needs[currentDomain].origin = '?'; }
+        nextDomain();
     };
     form.appendChild(btn);
     container.appendChild(form);
 }
 
 function renderNeedUrgency() {
+    while (currentDomain < domains.length && !data.needs[currentDomain].presence) {
+        currentDomain++;
+    }
+    if (currentDomain >= domains.length) {
+        nextStep();
+        return;
+    }
+    const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
-    domains.forEach((d, i) => {
-        if (!data.needs[i].presence) return;
-        const div = document.createElement('div');
-        div.className = 'domain-item';
-        div.innerHTML = `<strong>${d}</strong> ` +
-            `<label><input type="radio" name="urg${i}" value="1" checked> Non urgent</label> ` +
-            `<label><input type="radio" name="urg${i}" value="2"> Moyennement urgent</label> ` +
-            `<label><input type="radio" name="urg${i}" value="3"> Urgent</label>`;
-        form.appendChild(div);
-    });
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+        `<label><input type="radio" name="urg" value="1" checked> Non urgent</label> ` +
+        `<label><input type="radio" name="urg" value="2"> Moyennement urgent</label> ` +
+        `<label><input type="radio" name="urg" value="3"> Urgent</label>`;
+    form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
-        domains.forEach((d, i) => {
-            if (!data.needs[i].presence) return;
-            const val = document.querySelector(`input[name=urg${i}]:checked`).value;
-            data.needs[i].urgency = parseInt(val, 10);
-        });
-        nextStep();
+        const val = document.querySelector('input[name=urg]:checked').value;
+        data.needs[currentDomain].urgency = parseInt(val, 10);
+        nextDomain();
     };
     form.appendChild(btn);
     container.appendChild(form);
 }
 
 function renderNeedOrigin() {
+    while (currentDomain < domains.length && !data.needs[currentDomain].presence) {
+        currentDomain++;
+    }
+    if (currentDomain >= domains.length) {
+        nextStep();
+        return;
+    }
+    const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
-    domains.forEach((d, i) => {
-        if (!data.needs[i].presence) return;
-        const div = document.createElement('div');
-        div.className = 'domain-item';
-        div.innerHTML = `<strong>${d}</strong> ` +
-            `<select id="orig${i}">` +
-            `<option value="P">Professionnels</option>` +
-            `<option value="F">Famille</option>` +
-            `<option value="E">Entourage</option>` +
-            `<option value="?" selected>Non précisé</option>` +
-            `</select>`;
-        form.appendChild(div);
-    });
+    const div = document.createElement('div');
+    div.className = 'domain-item';
+    div.innerHTML = `<i class="fa ${d.icon} icon"></i><strong>${d.label}</strong> ` +
+        `<select id="orig">` +
+        `<option value="P">Professionnels</option>` +
+        `<option value="F">Famille</option>` +
+        `<option value="E">Entourage</option>` +
+        `<option value="?" selected>Non précisé</option>` +
+        `</select>`;
+    form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
-        domains.forEach((d, i) => {
-            if (!data.needs[i].presence) return;
-            const val = document.getElementById(`orig${i}`).value;
-            data.needs[i].origin = val;
-        });
-        nextStep();
+        const val = document.getElementById('orig').value;
+        data.needs[currentDomain].origin = val;
+        nextDomain();
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -204,7 +238,7 @@ function renderResults() {
         const diff = data.difficulties[i].intensity;
         const need = data.needs[i].urgency;
         const orig = data.needs[i].origin;
-        return `<tr><td>${d}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
+        return `<tr><td>${d.label}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
     }).join('');
     div.appendChild(table);
 
@@ -215,13 +249,13 @@ function renderResults() {
     ctx.fillStyle = '#eee';
     ctx.fillRect(0,0,canvas.width,canvas.height);
     domains.forEach((d, i) => {
-        const y = i*25 + 15;
+        const y = i * 25 + 15;
         ctx.fillStyle = '#000';
-        ctx.fillText(d, 10, y);
+        ctx.fillText(d.label, 10, y);
         ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(200, y-10, data.difficulties[i].intensity*40, 10);
+        ctx.fillRect(200, y - 10, data.difficulties[i].intensity * 40, 10);
         ctx.fillStyle = '#2196F3';
-        ctx.fillRect(200 + 150, y-10, data.needs[i].urgency*40, 10);
+        ctx.fillRect(350, y - 10, data.needs[i].urgency * 40, 10);
     });
     div.appendChild(canvas);
     container.appendChild(div);
