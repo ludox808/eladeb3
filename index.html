@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>ELADEB-R Auto-évaluation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px auto;
+            max-width: 700px;
+            line-height: 1.4;
+        }
+        h1 { text-align: center; }
         .hidden { display: none; }
-        .domain-list { list-style: none; padding: 0; }
-        .domain-item { margin-bottom: 10px; }
+        .domain-item { margin-bottom: 20px; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
         .chart-bar { background: #4CAF50; height: 20px; margin: 2px 0; }
         .chart-bar.need { background: #2196F3; }
+        .icon { margin-right: 8px; }
     </style>
 </head>
 <body>
