@@ -58,7 +58,9 @@ function createNav() {
     nav.className = 'nav';
     if (history.length > 0) {
         const back = document.createElement('button');
-        back.innerHTML = '<i class="fa fa-arrow-left"></i>';
+        back.type = 'button';
+        back.setAttribute('aria-label', 'Précédent');
+        back.innerHTML = '<i class="fa fa-arrow-left" aria-hidden="true"></i>';
         back.onclick = prev;
         nav.appendChild(back);
     }
@@ -397,6 +399,7 @@ function renderResults() {
     themeCanvas.id = 'themeChart';
     div.appendChild(themeCanvas);
     const printBtn = document.createElement('button');
+    printBtn.type = 'button';
     printBtn.textContent = 'Imprimer en PDF';
     printBtn.onclick = () => window.print();
     div.appendChild(printBtn);
