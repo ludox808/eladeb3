@@ -35,9 +35,32 @@ let currentStep = 0;
 let currentDomain = 0;
 let container;
 
-function createDomainCard(domain) {
+function getProgressText() {
+    if (currentStep === 1 || currentStep === 3) {
+        return `${currentDomain + 1}/${domains.length}`;
+    }
+    if (currentStep === 2) {
+        const total = data.difficulties.filter(d => d.presence).length;
+        const idx = data.difficulties.slice(0, currentDomain + 1).filter(d => d.presence).length;
+        return `${idx}/${total}`;
+    }
+    if (currentStep === 4 || currentStep === 5) {
+        const total = data.needs.filter(n => n.presence).length;
+        const idx = data.needs.slice(0, currentDomain + 1).filter(n => n.presence).length;
+        return `${idx}/${total}`;
+    }
+    return '';
+}
+
+function createDomainCard(domain, progress) {
     const div = document.createElement('div');
     div.className = 'domain-item';
+    if (progress) {
+        const p = document.createElement('div');
+        p.className = 'progress-overlay';
+        p.textContent = progress;
+        div.appendChild(p);
+    }
     const icons = document.createElement('div');
     icons.className = 'domain-icons';
     (domain.icons || []).forEach(ic => {
@@ -99,7 +122,7 @@ function renderDifficultyPresence() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
-    const div = createDomainCard(d);
+    const div = createDomainCard(d, getProgressText());
     const buttons = document.createElement('div');
     buttons.className = 'diff-buttons';
     const probBtn = document.createElement('button');
@@ -137,7 +160,7 @@ function renderDifficultyIntensity() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Difficultés : importance du problème</h2>';
-    const div = createDomainCard(d);
+    const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
         `<label><input type="radio" name="int" value="1" checked> Peu important</label> ` +
@@ -164,7 +187,7 @@ function renderNeedPresence() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
-    const div = createDomainCard(d);
+    const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
         `<label><input type="radio" name="need" value="yes"> Besoin</label> ` +
@@ -194,7 +217,7 @@ function renderNeedUrgency() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
-    const div = createDomainCard(d);
+    const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
         `<label><input type="radio" name="urg" value="1" checked> Non urgent</label> ` +
@@ -224,7 +247,7 @@ function renderNeedOrigin() {
     const d = domains[currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
-    const div = createDomainCard(d);
+    const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
         `<select id="orig">` +
