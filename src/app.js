@@ -283,12 +283,22 @@ function renderResults() {
 
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th></tr>';
+
+    const maxUrg = Math.max(...data.needs.map(n => n.urgency));
+
     table.innerHTML = header + domains.map((d, i) => {
         const diff = data.difficulties[i].intensity;
         const need = data.needs[i].urgency;
         const orig = data.needs[i].origin;
-        const cls = (diff >= 3 || need >= 3) ? ' class="high"' : '';
-        return `<tr${cls}><td>${d.label}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
+        const rowCls = (diff >= 3 || need >= 3) ? ' class="high"' : '';
+
+        const diffCls = diff > 0 ? ` class="val-${diff}"` : '';
+        const needClasses = [];
+        if (need > 0) needClasses.push(`val-${need}`);
+        if (need === maxUrg && need > 0) needClasses.push('high-urgency');
+        const needCls = needClasses.length ? ` class="${needClasses.join(' ')}"` : '';
+
+        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${need}</td><td>${orig}</td></tr>`;
     }).join('');
     div.appendChild(table);
 
