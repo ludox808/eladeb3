@@ -107,7 +107,8 @@ function renderDifficultyPresence() {
     probBtn.textContent = 'Problème';
     probBtn.onclick = () => {
         data.difficulties[currentDomain].presence = true;
-        nextDomain();
+        div.classList.add('chosen-problem');
+        setTimeout(nextDomain, 400);
     };
     const noProbBtn = document.createElement('button');
     noProbBtn.className = 'diff-btn diff-no-problem';
@@ -115,7 +116,8 @@ function renderDifficultyPresence() {
     noProbBtn.onclick = () => {
         data.difficulties[currentDomain].presence = false;
         data.difficulties[currentDomain].intensity = 0;
-        nextDomain();
+        div.classList.add('chosen-no-problem');
+        setTimeout(nextDomain, 400);
     };
     buttons.appendChild(probBtn);
     buttons.appendChild(noProbBtn);
