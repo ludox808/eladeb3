@@ -10,6 +10,9 @@
         .domain-item { margin-bottom: 10px; }
         .chart-bar { background: #4CAF50; height: 20px; margin: 2px 0; }
         .chart-bar.need { background: #2196F3; }
+        @media print {
+            button { display:none; }
+        }
     </style>
 </head>
 <body>
@@ -31,6 +34,28 @@ const data = {
 };
 let currentStep = 0;
 const container = document.getElementById('step-container');
+
+function exportData(format) {
+    let content = '';
+    if (format === 'json') {
+        content = JSON.stringify(data, null, 2);
+    } else {
+        const rows = ['Domain,Intensity,NeedUrgency,Origin'];
+        domains.forEach((d, i) => {
+            rows.push(`${d},${data.difficulties[i].intensity},${data.needs[i].urgency},${data.needs[i].origin}`);
+        });
+        rows.push(`InitialQuestion,"${data.initialQuestion.replace(/"/g,'""')}"`);
+        rows.push(`Priority,"${data.priority.replace(/"/g,'""')}"`);
+        content = rows.join('\n');
+    }
+    const blob = new Blob([content], {type: format === 'json' ? 'application/json' : 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `evaluation.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
 function nextStep() {
     currentStep++;
@@ -211,6 +236,10 @@ function renderPriority() {
 function renderResults() {
     const div = document.createElement('div');
     div.innerHTML = '<h2>Résultats</h2>';
+    const notes = document.createElement('div');
+    notes.innerHTML = `<p><strong>Question initiale :</strong> ${data.initialQuestion}</p>` +
+        `<p><strong>Besoin prioritaire :</strong> ${data.priority}</p>`;
+    div.appendChild(notes);
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th></tr>';
     table.innerHTML = header + domains.map((d, i) => {
@@ -233,10 +262,29 @@ function renderResults() {
         ctx.fillText(d, 10, y);
         ctx.fillStyle = '#4CAF50';
         ctx.fillRect(200, y-10, data.difficulties[i].intensity*40, 10);
-        ctx.fillStyle = '#2196F3';
-        ctx.fillRect(200 + 150, y-10, data.needs[i].urgency*40, 10);
+    ctx.fillStyle = '#2196F3';
+    ctx.fillRect(200 + 150, y-10, data.needs[i].urgency*40, 10);
     });
     div.appendChild(canvas);
+
+    const exportJson = document.createElement('button');
+    exportJson.id = 'exportJsonBtn';
+    exportJson.textContent = 'Export JSON';
+    exportJson.onclick = () => exportData('json');
+    div.appendChild(exportJson);
+
+    const exportCsv = document.createElement('button');
+    exportCsv.id = 'exportCsvBtn';
+    exportCsv.textContent = 'Export CSV';
+    exportCsv.onclick = () => exportData('csv');
+    div.appendChild(exportCsv);
+
+    const printBtn = document.createElement('button');
+    printBtn.id = 'printBtn';
+    printBtn.textContent = 'Print';
+    printBtn.onclick = () => window.print();
+    div.appendChild(printBtn);
+
     container.appendChild(div);
 }
 
