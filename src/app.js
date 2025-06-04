@@ -304,6 +304,18 @@ function renderResults() {
     codeP.textContent = `Code anonyme : ${code}`;
     div.appendChild(codeP);
 
+    // Afficher les réponses aux questions ouvertes
+    if (data.initialQuestion) {
+        const initialP = document.createElement('p');
+        initialP.innerHTML = `<strong>Problème principal :</strong> ${data.initialQuestion}`;
+        div.appendChild(initialP);
+    }
+    if (data.priority) {
+        const priorityP = document.createElement('p');
+        priorityP.innerHTML = `<strong>Action prioritaire souhaitée :</strong> ${data.priority}`;
+        div.appendChild(priorityP);
+    }
+
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th></tr>';
 
