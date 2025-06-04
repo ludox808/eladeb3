@@ -1,27 +1,27 @@
 // JavaScript logic extracted from index.html
 
 const domains = [
-    { label: "Lieu de vie", icons: ["fa-home", "fa-bed", "fa-tree"] },
-    { label: "Finances", icons: ["fa-euro-sign", "fa-wallet", "fa-money-bill"] },
-    { label: "Travail", icons: ["fa-briefcase", "fa-users", "fa-chart-line"] },
-    { label: "Droit & justice", icons: ["fa-gavel", "fa-balance-scale", "fa-file-contract"] },
-    { label: "Temps libre", icons: ["fa-clock", "fa-futbol", "fa-book"] },
-    { label: "Tâches administratives", icons: ["fa-file-alt", "fa-envelope", "fa-folder-open"] },
-    { label: "Entretien du ménage", icons: ["fa-broom", "fa-soap", "fa-trash"] },
-    { label: "Déplacements", icons: ["fa-bus", "fa-car", "fa-bicycle"] },
-    { label: "Fréquentation des lieux publics", icons: ["fa-store", "fa-shopping-cart", "fa-landmark"] },
-    { label: "Connaissances et amitiés", icons: ["fa-user-friends", "fa-handshake", "fa-users"] },
-    { label: "Famille", icons: ["fa-house-user", "fa-people-roof", "fa-children"] },
-    { label: "Enfants", icons: ["fa-child", "fa-baby", "fa-school"] },
-    { label: "Relations sentimentales", icons: ["fa-heart", "fa-ring", "fa-kiss-wink-heart"] },
-    { label: "Alimentation", icons: ["fa-utensils", "fa-carrot", "fa-apple-alt"] },
-    { label: "Hygiène personnelle", icons: ["fa-shower", "fa-soap", "fa-tooth"] },
-    { label: "Santé physique", icons: ["fa-heartbeat", "fa-stethoscope", "fa-dumbbell"] },
-    { label: "Santé psychique", icons: ["fa-brain", "fa-face-smile", "fa-comment-dots"] },
-    { label: "Addiction", icons: ["fa-wine-bottle", "fa-smoking", "fa-cannabis"] },
-    { label: "Traitement", icons: ["fa-pills", "fa-syringe", "fa-prescription-bottle-medical"] },
-    { label: "Spiritualité & croyances", icons: ["fa-pray", "fa-place-of-worship", "fa-book-bible"] },
-    { label: "Sexualité", icons: ["fa-venus-mars", "fa-heart", "fa-kiss"] }
+    { label: "Lieu de vie", theme: "Conditions de vie", icons: ["fa-home", "fa-bed", "fa-tree"] },
+    { label: "Finances", theme: "Conditions de vie", icons: ["fa-euro-sign", "fa-wallet", "fa-money-bill"] },
+    { label: "Travail", theme: "Conditions de vie", icons: ["fa-briefcase", "fa-users", "fa-chart-line"] },
+    { label: "Droit & justice", theme: "Conditions de vie", icons: ["fa-gavel", "fa-balance-scale", "fa-file-contract"] },
+    { label: "Temps libre", theme: "Pragmatique du quotidien", icons: ["fa-clock", "fa-futbol", "fa-book"] },
+    { label: "Tâches administratives", theme: "Pragmatique du quotidien", icons: ["fa-file-alt", "fa-envelope", "fa-folder-open"] },
+    { label: "Entretien du ménage", theme: "Pragmatique du quotidien", icons: ["fa-broom", "fa-soap", "fa-trash"] },
+    { label: "Déplacements", theme: "Pragmatique du quotidien", icons: ["fa-bus", "fa-car", "fa-bicycle"] },
+    { label: "Fréquentation des lieux publics", theme: "Pragmatique du quotidien", icons: ["fa-store", "fa-shopping-cart", "fa-landmark"] },
+    { label: "Connaissances et amitiés", theme: "Relations", icons: ["fa-user-friends", "fa-handshake", "fa-users"] },
+    { label: "Famille", theme: "Relations", icons: ["fa-house-user", "fa-people-roof", "fa-children"] },
+    { label: "Enfants", theme: "Relations", icons: ["fa-child", "fa-baby", "fa-school"] },
+    { label: "Relations sentimentales", theme: "Relations", icons: ["fa-heart", "fa-ring", "fa-kiss-wink-heart"] },
+    { label: "Alimentation", theme: "Santé", icons: ["fa-utensils", "fa-carrot", "fa-apple-alt"] },
+    { label: "Hygiène personnelle", theme: "Santé", icons: ["fa-shower", "fa-soap", "fa-tooth"] },
+    { label: "Santé physique", theme: "Santé", icons: ["fa-heartbeat", "fa-stethoscope", "fa-dumbbell"] },
+    { label: "Santé psychique", theme: "Santé", icons: ["fa-brain", "fa-face-smile", "fa-comment-dots"] },
+    { label: "Addiction", theme: "Santé", icons: ["fa-wine-bottle", "fa-smoking", "fa-cannabis"] },
+    { label: "Traitement", theme: "Santé", icons: ["fa-pills", "fa-syringe", "fa-prescription-bottle-medical"] },
+    { label: "Spiritualité & croyances", theme: "Santé", icons: ["fa-pray", "fa-place-of-worship", "fa-book-bible"] },
+    { label: "Sexualité", theme: "Santé", icons: ["fa-venus-mars", "fa-heart", "fa-kiss"] }
 ];
 
 const data = {
@@ -251,9 +251,27 @@ function renderPriority() {
     };
 }
 
+function saveResults() {
+    const all = JSON.parse(localStorage.getItem('eladeb-data') || '[]');
+    const record = {
+        id: Date.now().toString(36),
+        timestamp: new Date().toISOString(),
+        data: JSON.parse(JSON.stringify(data))
+    };
+    all.push(record);
+    localStorage.setItem('eladeb-data', JSON.stringify(all));
+    return record.id;
+}
+
 function renderResults() {
     const div = document.createElement('div');
     div.innerHTML = '<h2>Résultats</h2>';
+
+    const code = saveResults();
+    const codeP = document.createElement('p');
+    codeP.textContent = `Code anonyme : ${code}`;
+    div.appendChild(codeP);
+
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th></tr>';
     table.innerHTML = header + domains.map((d, i) => {
@@ -263,6 +281,34 @@ function renderResults() {
         return `<tr><td>${d.label}</td><td>${diff}</td><td>${need}</td><td>${orig}</td></tr>`;
     }).join('');
     div.appendChild(table);
+
+    const themeScores = {};
+    domains.forEach((d, i) => {
+        if (!themeScores[d.theme]) themeScores[d.theme] = { diff: 0, need: 0 };
+        themeScores[d.theme].diff += data.difficulties[i].intensity;
+        themeScores[d.theme].need += data.needs[i].urgency;
+    });
+    const summary = document.createElement('ul');
+    Object.keys(themeScores).forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = `${t} - Difficulté: ${themeScores[t].diff}, Besoin: ${themeScores[t].need}`;
+        summary.appendChild(li);
+    });
+    div.appendChild(summary);
+
+    const diffNotNeed = domains
+        .filter((d, i) => data.difficulties[i].presence && !data.needs[i].presence)
+        .map(d => d.label);
+    const needNotDiff = domains
+        .filter((d, i) => !data.difficulties[i].presence && data.needs[i].presence)
+        .map(d => d.label);
+    if (diffNotNeed.length || needNotDiff.length) {
+        const mismatch = document.createElement('p');
+        mismatch.innerHTML =
+            `<strong>Difficultés sans demande d'aide :</strong> ${diffNotNeed.join(', ')}<br>` +
+            `<strong>Demandes sans difficulté :</strong> ${needNotDiff.join(', ')}`;
+        div.appendChild(mismatch);
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = 600;
