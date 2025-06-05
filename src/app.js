@@ -36,6 +36,15 @@ let currentDomain = 0;
 let container;
 const historyStack = [];
 
+const infoShown = {};
+const infoMessages = {
+    2: "Cette application applique les principes de l'évaluation par tri de cartes ELADEB-R. Vous allez maintenant évaluer l'importance de chaque problème identifié.",
+    3: "Vous allez maintenant indiquer si une aide supplémentaire est souhaitée.",
+    4: "Vous allez maintenant préciser l'urgence de l'aide.",
+    5: "Vous allez maintenant choisir l'origine de l'aide souhaitée.",
+    6: "Enfin, vous pourrez préciser l'action prioritaire à mener."
+};
+
 function transition(action) {
     container.classList.add('fade-out');
     setTimeout(() => {
@@ -46,6 +55,19 @@ function transition(action) {
 
 function recordState() {
     historyStack.push({ step: currentStep, domain: currentDomain });
+}
+
+function showStepInfo() {
+    const msg = infoMessages[currentStep];
+    if (msg && !infoShown[currentStep]) {
+        infoShown[currentStep] = true;
+        const div = document.createElement('div');
+        div.innerHTML = `<p>${msg}</p><button id="continue">Commencer</button>`;
+        container.appendChild(div);
+        document.getElementById('continue').onclick = () => transition(render);
+        return true;
+    }
+    return false;
 }
 
 function getProgressText() {
@@ -124,6 +146,7 @@ function render() {
         back.onclick = goBack;
         container.appendChild(back);
     }
+    if (showStepInfo()) return;
     if (currentStep === 0) renderInitialQuestion();
     else if (currentStep === 1) renderDifficultyPresence();
     else if (currentStep === 2) renderDifficultyIntensity();
