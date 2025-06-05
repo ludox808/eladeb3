@@ -313,7 +313,7 @@ function saveResults() {
     };
     all.push(record);
     localStorage.setItem('eladeb-data', JSON.stringify(all));
-    return record.id;
+    return record;
 }
 
 function renderResults() {
@@ -321,10 +321,17 @@ function renderResults() {
     div.className = 'results';
     div.innerHTML = '<h2>R\xE9sultats d\xE9taill\xE9s</h2>';
 
-    const code = saveResults();
+    const record = saveResults();
     const codeP = document.createElement('p');
-    codeP.textContent = `Code anonyme : ${code}`;
+    codeP.textContent = `Code anonyme : ${record.id}`;
     div.appendChild(codeP);
+
+    const dateP = document.createElement('p');
+    const recordDate = new Date(record.timestamp);
+    const dateStr = recordDate.toLocaleDateString('fr-FR');
+    const timeStr = recordDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    dateP.textContent = `Date : ${dateStr} - Heure : ${timeStr}`;
+    div.appendChild(dateP);
 
     // Afficher les réponses aux questions ouvertes
     if (data.initialQuestion) {
