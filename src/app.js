@@ -27,7 +27,7 @@ const domains = [
 const data = {
     initialQuestion: '',
     difficulties: domains.map(() => ({ presence: false, intensity: 0 })),
-    needs: domains.map(() => ({ presence: false, urgency: 0, origin: '?' })),
+    needs: domains.map(() => ({ presence: false, urgency: 0, origin: '?', detail: '' })),
     priority: ''
 };
 
@@ -221,7 +221,11 @@ function renderNeedPresence() {
     btn.onclick = () => {
         const val = document.querySelector('input[name=need]:checked').value;
         data.needs[currentDomain].presence = val === 'yes';
-        if (!data.needs[currentDomain].presence) { data.needs[currentDomain].urgency = 0; data.needs[currentDomain].origin = '?'; }
+        if (!data.needs[currentDomain].presence) {
+            data.needs[currentDomain].urgency = 0;
+            data.needs[currentDomain].origin = '?';
+            data.needs[currentDomain].detail = '';
+        }
         nextDomain();
     };
     form.appendChild(btn);
@@ -277,14 +281,17 @@ function renderNeedOrigin() {
         `<option value="F">Famille</option>` +
         `<option value="E">Entourage</option>` +
         `<option value="?" selected>Non précisé</option>` +
-        `</select>`;
+        `</select>` +
+        `<input id="origDetail" type="text" placeholder="Précisions" style="margin-left:10px">`;
     div.appendChild(opts);
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         const val = document.getElementById('orig').value;
+        const detail = document.getElementById('origDetail').value;
         data.needs[currentDomain].origin = val;
+        data.needs[currentDomain].detail = detail;
         nextDomain();
     };
     form.appendChild(btn);
@@ -339,7 +346,7 @@ function renderResults() {
     }
 
     const table = document.createElement('table');
-    const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th></tr>';
+    const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
 
     const maxUrg = Math.max(...data.needs.map(n => n.urgency));
 
@@ -347,6 +354,7 @@ function renderResults() {
         const diff = data.difficulties[i].intensity;
         const need = data.needs[i].urgency;
         const orig = data.needs[i].origin;
+        const detail = data.needs[i].detail || '';
         const rowCls = (diff >= 3 || need >= 3) ? ' class="high"' : '';
 
         const diffCls = diff > 0 ? ` class="val-${diff}"` : '';
@@ -356,9 +364,15 @@ function renderResults() {
         const needCls = needClasses.length ? ` class="${needClasses.join(' ')}"` : '';
         const needDisplay = data.needs[i].presence ? need : '—';
 
-        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td></tr>`;
+        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td><td><input type="text" data-index="${i}" class="origin-detail" value="${detail}"></td></tr>`;
     }).join('');
     div.appendChild(table);
+    table.querySelectorAll('.origin-detail').forEach(input => {
+        input.addEventListener('input', e => {
+            const idx = parseInt(e.target.getAttribute('data-index'), 10);
+            data.needs[idx].detail = e.target.value;
+        });
+    });
 
     const themeScores = {};
     domains.forEach((d, i) => {
