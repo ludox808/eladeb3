@@ -36,6 +36,14 @@ let currentDomain = 0;
 let container;
 const historyStack = [];
 
+function transition(action) {
+    container.classList.add('fade-out');
+    setTimeout(() => {
+        action();
+        container.classList.remove('fade-out');
+    }, 300);
+}
+
 function recordState() {
     historyStack.push({ step: currentStep, domain: currentDomain });
 }
@@ -100,9 +108,11 @@ function nextDomain() {
 function goBack() {
     const prev = historyStack.pop();
     if (!prev) return;
-    currentStep = prev.step;
-    currentDomain = prev.domain;
-    render();
+    transition(() => {
+        currentStep = prev.step;
+        currentDomain = prev.domain;
+        render();
+    });
 }
 
 function render() {
@@ -132,7 +142,7 @@ function renderInitialQuestion() {
     container.appendChild(div);
     document.getElementById('next').onclick = () => {
         data.initialQuestion = document.getElementById('question').value;
-        nextStep();
+        transition(nextStep);
     };
 }
 
@@ -153,7 +163,7 @@ function renderDifficultyPresence() {
     probBtn.onclick = () => {
         data.difficulties[currentDomain].presence = true;
         div.classList.add('chosen-problem');
-        setTimeout(nextDomain, 400);
+        transition(nextDomain);
     };
     const noProbBtn = document.createElement('button');
     noProbBtn.className = 'diff-btn diff-no-problem';
@@ -162,7 +172,7 @@ function renderDifficultyPresence() {
         data.difficulties[currentDomain].presence = false;
         data.difficulties[currentDomain].intensity = 0;
         div.classList.add('chosen-no-problem');
-        setTimeout(nextDomain, 400);
+        transition(nextDomain);
     };
     buttons.appendChild(probBtn);
     buttons.appendChild(noProbBtn);
@@ -195,7 +205,7 @@ function renderDifficultyIntensity() {
     btn.onclick = () => {
         const val = document.querySelector('input[name=int]:checked').value;
         data.difficulties[currentDomain].intensity = parseInt(val, 10);
-        nextDomain();
+        transition(nextDomain);
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -221,12 +231,18 @@ function renderNeedPresence() {
     btn.onclick = () => {
         const val = document.querySelector('input[name=need]:checked').value;
         data.needs[currentDomain].presence = val === 'yes';
+      
         if (!data.needs[currentDomain].presence) {
-            data.needs[currentDomain].urgency = 0;
-            data.needs[currentDomain].origin = '?';
-            data.needs[currentDomain].detail = '';
-        }
-        nextDomain();
+  data.needs[currentDomain].urgency = 0;
+  data.needs[currentDomain].origin = '?';
+  data.needs[currentDomain].detail = '';
+}
+transition(nextDomain);
+
+      
+        if (!data.needs[currentDomain].presence) { data.needs[currentDomain].urgency = 0; data.needs[currentDomain].origin = '?'; }
+        transition(nextDomain);
+ 
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -256,7 +272,7 @@ function renderNeedUrgency() {
     btn.onclick = () => {
         const val = document.querySelector('input[name=urg]:checked').value;
         data.needs[currentDomain].urgency = parseInt(val, 10);
-        nextDomain();
+        transition(nextDomain);
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -291,8 +307,9 @@ function renderNeedOrigin() {
         const val = document.getElementById('orig').value;
         const detail = document.getElementById('origDetail').value;
         data.needs[currentDomain].origin = val;
-        data.needs[currentDomain].detail = detail;
-        nextDomain();
+data.needs[currentDomain].detail = detail;
+transition(nextDomain);
+
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -307,7 +324,7 @@ function renderPriority() {
     container.appendChild(div);
     document.getElementById('next').onclick = () => {
         data.priority = document.getElementById('priority').value;
-        nextStep();
+        transition(nextStep);
     };
 }
 
@@ -320,7 +337,7 @@ function saveResults() {
     };
     all.push(record);
     localStorage.setItem('eladeb-data', JSON.stringify(all));
-    return record.id;
+    return record;
 }
 
 function renderResults() {
@@ -328,10 +345,17 @@ function renderResults() {
     div.className = 'results';
     div.innerHTML = '<h2>R\xE9sultats d\xE9taill\xE9s</h2>';
 
-    const code = saveResults();
+    const record = saveResults();
     const codeP = document.createElement('p');
-    codeP.textContent = `Code anonyme : ${code}`;
+    codeP.textContent = `Code anonyme : ${record.id}`;
     div.appendChild(codeP);
+
+    const dateP = document.createElement('p');
+    const recordDate = new Date(record.timestamp);
+    const dateStr = recordDate.toLocaleDateString('fr-FR');
+    const timeStr = recordDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    dateP.textContent = `Date : ${dateStr} - Heure : ${timeStr}`;
+    div.appendChild(dateP);
 
     // Afficher les réponses aux questions ouvertes
     if (data.initialQuestion) {
