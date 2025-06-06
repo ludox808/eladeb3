@@ -433,7 +433,7 @@ function renderResults() {
     const themeNeed = [];
     Object.keys(themeScores).forEach(t => {
         const li = document.createElement('li');
-        li.textContent = `${t} - Difficult\xE9: ${themeScores[t].diff}, Besoin: ${themeScores[t].need}`;
+        li.innerHTML = `<strong>${t}</strong> - Difficulté : ${themeScores[t].diff}, Besoin : ${themeScores[t].need}`;
         summary.appendChild(li);
         themeLabels.push(t);
         themeDiff.push(themeScores[t].diff);
