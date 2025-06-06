@@ -461,6 +461,12 @@ function renderResults() {
     const themeCanvas = document.createElement('canvas');
     themeCanvas.id = 'themeChart';
     div.appendChild(themeCanvas);
+
+    const printBtn = document.createElement('button');
+    printBtn.textContent = 'Imprimer la synthèse';
+    printBtn.onclick = () => window.print();
+    div.appendChild(printBtn);
+
     container.appendChild(div);
 
     new Chart(canvas.getContext('2d'), {
