@@ -48,6 +48,16 @@ const infoMessages = {
     6: "Enfin, vous pourrez préciser l'action prioritaire à mener."
 };
 
+function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[c]));
+}
+
 function transition(action) {
     const h = container.offsetHeight;
     container.style.minHeight = `${h}px`;
@@ -522,12 +532,20 @@ function renderResults() {
     // Afficher les réponses aux questions ouvertes
     if (data.initialQuestion) {
         const initialP = document.createElement('p');
-        initialP.innerHTML = `<strong>Problème principal :</strong> ${data.initialQuestion}`;
+        const strong = document.createElement('strong');
+        strong.textContent = 'Problème principal :';
+        initialP.appendChild(strong);
+        initialP.append(' ');
+        initialP.appendChild(document.createTextNode(data.initialQuestion));
         div.appendChild(initialP);
     }
     if (data.priority) {
         const priorityP = document.createElement('p');
-        priorityP.innerHTML = `<strong>Action prioritaire souhaitée :</strong> ${data.priority}`;
+        const strong = document.createElement('strong');
+        strong.textContent = 'Action prioritaire souhaitée :';
+        priorityP.appendChild(strong);
+        priorityP.append(' ');
+        priorityP.appendChild(document.createTextNode(data.priority));
         div.appendChild(priorityP);
     }
 
@@ -550,7 +568,7 @@ function renderResults() {
         const needCls = needClasses.length ? ` class="${needClasses.join(' ')}"` : '';
         const needDisplay = data.needs[i].presence ? need : '—';
 
-        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td><td><input type="text" data-index="${i}" class="origin-detail" value="${detail}"></td></tr>`;
+        return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td><td><input type="text" data-index="${i}" class="origin-detail" value="${escapeHTML(detail)}"></td></tr>`;
     }).join('');
     div.appendChild(table);
     table.querySelectorAll('.origin-detail').forEach(input => {
