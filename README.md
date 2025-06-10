@@ -32,3 +32,7 @@ python plot_axes_scores.py
 ```
 
 This generates `axes_scores_chart.png` in the repository root and shows the chart if possible.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
