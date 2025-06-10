@@ -51,7 +51,7 @@ const infoMessages = {
 };
 
 function escapeHTML(str) {
-    return str.replace(/[&<>"']/g, c => ({
+    return str.replace(/[&<>\"']/g, c => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
@@ -220,7 +220,8 @@ function render() {
 
 function renderInitialQuestion() {
     const div = document.createElement('div');
-    div.innerHTML = '<p>Quel est pour vous le problème le plus important actuellement ?</p>' +
+    div.innerHTML =
+        '<p>Quel est pour vous le problème le plus important actuellement ?</p>' +
         '<textarea id="question" rows="3" cols="60"></textarea><br>' +
         '<button id="next">Suivant</button>';
     container.appendChild(div);
@@ -240,11 +241,9 @@ function renderDifficultyPresence() {
         return;
     }
 
-    // Header
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
 
-    // Card currently being evaluated
     const d = domains[currentDomain];
     const div = createDomainCard(d, getProgressText());
     const buttons = document.createElement('div');
@@ -298,7 +297,7 @@ function renderDifficultyIntensity() {
     const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
-        `<label><input type="radio" name="int" value="1"> Peu important</label> ` +
+        `<label><input type="radio" name="int" value="1"> Peu important</label>` +
         `<label><input type="radio" name="int" value="2"> Important</label> ` +
         `<label><input type="radio" name="int" value="3"> Très important</label>`;
     div.appendChild(opts);
@@ -352,7 +351,7 @@ function renderNeedPresence() {
     if (card.parentElement) card.parentElement.removeChild(card);
 
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
+    form.innerHTML = '<h2>Besoin d\\'aide supplémentaire ?</h2>';
     const buttons = document.createElement('div');
     buttons.className = 'diff-buttons';
     const yesBtn = document.createElement('button');
@@ -394,7 +393,7 @@ function renderNeedUrgency() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
+    form.innerHTML = '<h2>Urgence de l\\'aide souhaitée</h2>';
     const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -432,7 +431,7 @@ function renderNeedOrigin() {
     }
     const d = domains[currentDomain];
     const form = document.createElement('div');
-    form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
+    form.innerHTML = '<h2>Origine de l\\'aide souhaitée</h2>';
     const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
@@ -466,7 +465,7 @@ function renderNeedOrigin() {
 function renderPriority() {
     const div = document.createElement('div');
     div.innerHTML = '<h2>Besoin prioritaire</h2>' +
-        '<p>Si on ne pouvait faire qu\'une seule chose pour vous, laquelle choisiriez-vous ?</p>' +
+        '<p>Si on ne pouvait faire qu\\'une seule chose pour vous, laquelle choisiriez-vous ?</p>' +
         '<textarea id="priority" rows="3" cols="60"></textarea><br>' +
         '<button id="next">Terminer</button>';
     container.appendChild(div);
@@ -493,7 +492,7 @@ function saveResults() {
 function renderResults() {
     const div = document.createElement('div');
     div.className = 'results';
-    div.innerHTML = '<h2>R\xE9sultats d\xE9taill\xE9s</h2>';
+    div.innerHTML = '<h2>R\\xE9sultats d\\xE9taill\\xE9s</h2>';
 
     const record = saveResults();
     const codeP = document.createElement('p');
@@ -507,7 +506,6 @@ function renderResults() {
     dateP.textContent = `Date : ${dateStr} - Heure : ${timeStr}`;
     div.appendChild(dateP);
 
-    // Afficher les réponses aux questions ouvertes
     if (data.initialQuestion) {
         const initialP = document.createElement('p');
         const strong = document.createElement('strong');
@@ -528,7 +526,7 @@ function renderResults() {
     }
 
     const table = document.createElement('table');
-    const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
+    const header = '<tr><th>Domaine</th><th>Intensité difficulté</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
 
     const maxUrg = Math.max(...data.needs.map(n => n.urgency));
 
@@ -610,7 +608,7 @@ function renderResults() {
             labels: domains.map(d => d.label),
             datasets: [
                 {
-                    label: 'Difficult\xE9',
+                    label: 'Difficulté',
                     backgroundColor: '#4CAF50',
                     data: domains.map((d,i) => data.difficulties[i].intensity)
                 },
@@ -632,7 +630,7 @@ function renderResults() {
         data: {
             labels: themeLabels,
             datasets: [
-                { label: 'Difficult\xE9', backgroundColor: '#4CAF50', data: themeDiff },
+                { label: 'Difficulté', backgroundColor: '#4CAF50', data: themeDiff },
                 { label: 'Besoin', backgroundColor: '#2196F3', data: themeNeed }
             ]
         },
@@ -644,7 +642,6 @@ function renderResults() {
 }
 
 // Wait for the DOM to be fully loaded before initializing
-
 document.addEventListener('DOMContentLoaded', () => {
     container = document.getElementById('step-container');
     navBackBtn = document.getElementById('nav-back');
@@ -654,7 +651,6 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
 });
 
-
 function handleNavNext() {
     if (currentStep >= 1 && currentStep <= 5) {
         nextDomain();
@@ -662,4 +658,3 @@ function handleNavNext() {
         nextStep();
     }
 }
-
