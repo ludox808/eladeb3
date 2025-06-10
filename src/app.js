@@ -275,12 +275,14 @@ function renderNeedPresence() {
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         const val = document.querySelector('input[name=need]:checked').value;
+codex/refactor-renderneedpresence
         const need = data.needs[currentDomain];
         need.presence = val === 'yes';
         if (!need.presence) {
             need.urgency = 0;
             need.origin = '?';
             need.detail = '';
+ main
         }
         transition(nextDomain);
     };
