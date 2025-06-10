@@ -34,6 +34,8 @@ const data = {
 let currentStep = 0;
 let currentDomain = 0;
 let container;
+let navBackBtn;
+let navNextBtn;
 const historyStack = [];
 
 let needColumns;
@@ -136,39 +138,33 @@ function createDomainCard(domain, progress) {
     return div;
 }
 
-function createSummaryCard(domain) {
-    const div = document.createElement('div');
-    div.className = 'summary-card';
-    const icon = document.createElement('i');
-    icon.className = `fa ${domain.icons[0]} domain-icon`;
-    div.appendChild(icon);
-    const span = document.createElement('span');
-    span.textContent = domain.label;
-    div.appendChild(span);
-    return div;
-}
-
-function buildSummaryContainer() {
-    const cont = document.createElement('div');
-    cont.className = 'summary-container';
-    const probCol = document.createElement('div');
-    probCol.className = 'summary-column';
-    const probTitle = document.createElement('h3');
-    probTitle.textContent = 'Problème';
-    probCol.appendChild(probTitle);
-    const noProbCol = document.createElement('div');
-    noProbCol.className = 'summary-column';
-    const noProbTitle = document.createElement('h3');
-    noProbTitle.textContent = 'Pas de problème';
-    noProbCol.appendChild(noProbTitle);
+function buildSummaryTable() {
+    const table = document.createElement('table');
+    table.id = 'diff-summary';
     for (let i = 0; i < currentDomain; i++) {
-        const card = createSummaryCard(domains[i]);
-        if (data.difficulties[i].presence) probCol.appendChild(card);
-        else noProbCol.appendChild(card);
+        const tr = document.createElement('tr');
+        const iconTd = document.createElement('td');
+        const icon = document.createElement('i');
+        icon.className = `fa ${domains[i].icons[0]}`;
+        iconTd.appendChild(icon);
+        const nameTd = document.createElement('td');
+        nameTd.textContent = domains[i].label;
+        const statusTd = document.createElement('td');
+        const badge = document.createElement('span');
+        if (data.difficulties[i].presence) {
+            badge.className = 'badge badge-problem';
+            badge.textContent = '❌ Problème';
+        } else {
+            badge.className = 'badge badge-ok';
+            badge.textContent = '✅ Pas de problème';
+        }
+        statusTd.appendChild(badge);
+        tr.appendChild(iconTd);
+        tr.appendChild(nameTd);
+        tr.appendChild(statusTd);
+        table.appendChild(tr);
     }
-    cont.appendChild(probCol);
-    cont.appendChild(noProbCol);
-    return cont;
+    return table;
 }
 
 function nextStep() {
@@ -198,15 +194,19 @@ function goBack() {
     });
 }
 
+function updateNavBar() {
+    if (navBackBtn) {
+        navBackBtn.disabled = historyStack.length === 0;
+    }
+    if (navNextBtn) {
+        if (currentStep >= 7) navNextBtn.style.display = 'none';
+        else navNextBtn.style.display = '';
+    }
+}
+
 function render() {
     container.innerHTML = '';
-    if (historyStack.length) {
-        const back = document.createElement('button');
-        back.id = 'back';
-        back.innerHTML = '\u2190';
-        back.onclick = goBack;
-        container.appendChild(back);
-    }
+    updateNavBar();
     if (showStepInfo()) return;
     if (currentStep === 0) renderInitialQuestion();
     else if (currentStep === 1) renderDifficultyPresence();
@@ -280,36 +280,8 @@ function renderDifficultyPresence() {
         div.classList.add('chosen-no-problem');
     }
     form.appendChild(div);
-
-    // Columns showing already sorted cards
-    const cols = document.createElement('div');
-    cols.id = 'diff-columns';
-
-    const colProb = document.createElement('div');
-    colProb.id = 'col-problem';
-    colProb.innerHTML = '<h3>Problème</h3>';
-
-    const colOk = document.createElement('div');
-    colOk.id = 'col-ok';
-    colOk.innerHTML = '<h3>Pas de problème</h3>';
-
-    // Append cards from previous answers
-    for (let i = 0; i < currentDomain; i++) {
-        const card = createDomainCard(domains[i]);
-        if (data.difficulties[i].presence) {
-            card.classList.add('chosen-problem');
-            colProb.appendChild(card);
-        } else {
-            card.classList.add('chosen-no-problem');
-            colOk.appendChild(card);
-        }
-    }
-
-    cols.appendChild(colProb);
-    cols.appendChild(colOk);
-    form.appendChild(cols);
     container.appendChild(form);
-    container.appendChild(buildSummaryContainer());
+    container.appendChild(buildSummaryTable());
 }
 
 function renderDifficultyIntensity() {
@@ -672,8 +644,22 @@ function renderResults() {
 }
 
 // Wait for the DOM to be fully loaded before initializing
+
 document.addEventListener('DOMContentLoaded', () => {
     container = document.getElementById('step-container');
+    navBackBtn = document.getElementById('nav-back');
+    navNextBtn = document.getElementById('nav-next');
+    if (navBackBtn) navBackBtn.onclick = goBack;
+    if (navNextBtn) navNextBtn.onclick = handleNavNext;
     render();
 });
+
+
+function handleNavNext() {
+    if (currentStep >= 1 && currentStep <= 5) {
+        nextDomain();
+    } else {
+        nextStep();
+    }
+}
 
