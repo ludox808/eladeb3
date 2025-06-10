@@ -163,8 +163,12 @@ function renderInitialQuestion() {
         '<textarea id="question" rows="3" cols="60"></textarea><br>' +
         '<button id="next">Suivant</button>';
     container.appendChild(div);
+
+    const textarea = document.getElementById('question');
+    textarea.value = data.initialQuestion || '';
+
     document.getElementById('next').onclick = () => {
-        data.initialQuestion = document.getElementById('question').value;
+        data.initialQuestion = textarea.value;
         transition(nextStep);
     };
 }
@@ -200,6 +204,14 @@ function renderDifficultyPresence() {
     buttons.appendChild(probBtn);
     buttons.appendChild(noProbBtn);
     div.appendChild(buttons);
+
+    if (data.difficulties[currentDomain].presence) {
+        div.classList.add('chosen-problem');
+    } else if (!data.difficulties[currentDomain].presence &&
+               data.difficulties[currentDomain].intensity === 0) {
+        div.classList.add('chosen-no-problem');
+    }
+
     form.appendChild(div);
     container.appendChild(form);
 }
@@ -218,10 +230,18 @@ function renderDifficultyIntensity() {
     const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
-        `<label><input type="radio" name="int" value="1" checked> Peu important</label> ` +
+        `<label><input type="radio" name="int" value="1"> Peu important</label> ` +
         `<label><input type="radio" name="int" value="2"> Important</label> ` +
         `<label><input type="radio" name="int" value="3"> Très important</label>`;
     div.appendChild(opts);
+
+    const intVal = data.difficulties[currentDomain].intensity;
+    if (intVal > 0) {
+        opts.querySelector(`input[name=int][value="${intVal}"]`).checked = true;
+    } else {
+        opts.querySelector('input[name=int][value="1"]').checked = true;
+    }
+
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -246,8 +266,10 @@ function renderNeedPresence() {
     const opts = document.createElement('div');
     opts.innerHTML =
         `<label><input type="radio" name="need" value="yes"> Besoin</label> ` +
-        `<label><input type="radio" name="need" value="no" checked> Pas besoin</label>`;
+        `<label><input type="radio" name="need" value="no"> Pas besoin</label>`;
     div.appendChild(opts);
+    const needVal = data.needs[currentDomain].presence;
+    opts.querySelector(`input[name=need][value="${needVal ? 'yes' : 'no'}"]`).checked = true;
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -255,15 +277,12 @@ function renderNeedPresence() {
         const val = document.querySelector('input[name=need]:checked').value;
         const need = data.needs[currentDomain];
         need.presence = val === 'yes';
-
         if (!need.presence) {
             need.urgency = 0;
             need.origin = '?';
             need.detail = '';
         }
-
         transition(nextDomain);
-
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -283,10 +302,18 @@ function renderNeedUrgency() {
     const div = createDomainCard(d, getProgressText());
     const opts = document.createElement('div');
     opts.innerHTML =
-        `<label><input type="radio" name="urg" value="1" checked> Non urgent</label> ` +
+        `<label><input type="radio" name="urg" value="1"> Non urgent</label> ` +
         `<label><input type="radio" name="urg" value="2"> Moyennement urgent</label> ` +
         `<label><input type="radio" name="urg" value="3"> Urgent</label>`;
     div.appendChild(opts);
+
+    const urgVal = data.needs[currentDomain].urgency;
+    if (urgVal > 0) {
+        opts.querySelector(`input[name=urg][value="${urgVal}"]`).checked = true;
+    } else {
+        opts.querySelector('input[name=urg][value="1"]').checked = true;
+    }
+
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -317,10 +344,15 @@ function renderNeedOrigin() {
         `<option value="P">Professionnels</option>` +
         `<option value="F">Famille</option>` +
         `<option value="E">Entourage</option>` +
-        `<option value="?" selected>Non précisé</option>` +
+        `<option value="?">Non précisé</option>` +
         `</select>` +
         `<input id="origDetail" type="text" placeholder="Précisions" style="margin-left:10px">`;
     div.appendChild(opts);
+
+    const select = opts.querySelector('#orig');
+    select.value = data.needs[currentDomain].origin;
+    opts.querySelector('#origDetail').value = data.needs[currentDomain].detail || '';
+
     form.appendChild(div);
     const btn = document.createElement('button');
     btn.textContent = 'Suivant';
@@ -328,9 +360,8 @@ function renderNeedOrigin() {
         const val = document.getElementById('orig').value;
         const detail = document.getElementById('origDetail').value;
         data.needs[currentDomain].origin = val;
-data.needs[currentDomain].detail = detail;
-transition(nextDomain);
-
+        data.needs[currentDomain].detail = detail;
+        transition(nextDomain);
     };
     form.appendChild(btn);
     container.appendChild(form);
@@ -343,8 +374,10 @@ function renderPriority() {
         '<textarea id="priority" rows="3" cols="60"></textarea><br>' +
         '<button id="next">Terminer</button>';
     container.appendChild(div);
+    const textarea = document.getElementById('priority');
+    textarea.value = data.priority || '';
     document.getElementById('next').onclick = () => {
-        data.priority = document.getElementById('priority').value;
+        data.priority = textarea.value;
         transition(nextStep);
     };
 }
