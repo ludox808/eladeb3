@@ -1,0 +1,15 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Python syntax
+        run: python -m py_compile plot_eladeb.py plot_axes_scores.py
+      - name: Check JavaScript syntax
+        run: node --check src/app.js

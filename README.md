@@ -32,3 +32,9 @@ python plot_axes_scores.py
 ```
 
 This generates `axes_scores_chart.png` in the repository root and shows the chart if possible.
+
+## Continuous Integration
+
+A simple GitHub Actions workflow runs on each push or pull request. It checks
+that the Python scripts can be compiled with `py_compile` and verifies the
+JavaScript using `node --check`.
