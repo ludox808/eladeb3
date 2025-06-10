@@ -33,8 +33,17 @@ python plot_axes_scores.py
 
 This generates `axes_scores_chart.png` in the repository root and shows the chart if possible.
 
+
+
+
 ## Continuous Integration
 
-A simple GitHub Actions workflow runs on each push or pull request. It checks
-that the Python scripts can be compiled with `py_compile` and verifies the
-JavaScript using `node --check`.
+The repository includes a GitHub Actions workflow located at `.github/workflows/lint.yml`.
+It automatically checks syntax of the Python and JavaScript files when a pull request is opened or code is pushed. The steps run `python -m py_compile` on the scripts, `node --check src/app.js` and a basic HTML validation using `npx htmlhint`.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+
+

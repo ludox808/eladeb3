@@ -2,14 +2,31 @@ name: Lint
 
 on:
   push:
+
+    branches: ["*"]
   pull_request:
 
 jobs:
-  syntax:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Check Python syntax
-        run: python -m py_compile plot_eladeb.py plot_axes_scores.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Check Python files
+        run: |
+          python -m py_compile plot_axes_scores.py plot_eladeb.py
+
       - name: Check JavaScript syntax
-        run: node --check src/app.js
+        run: |
+          node --check src/app.js
+
+      - name: Validate HTML
+        run: |
+          npx htmlhint index.html
+        continue-on-error: true
+
