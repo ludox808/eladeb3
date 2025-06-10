@@ -62,7 +62,10 @@ function transition(action) {
     const h = container.offsetHeight;
     container.style.minHeight = `${h}px`;
     container.classList.add('fade-out');
+    let ended = false;
     const onEnd = () => {
+        if (ended) return;
+        ended = true;
         container.removeEventListener('transitionend', onEnd);
         action();
         container.classList.remove('fade-out');
@@ -71,6 +74,9 @@ function transition(action) {
         });
     };
     container.addEventListener('transitionend', onEnd, { once: true });
+    const durStr = getComputedStyle(container).transitionDuration.split(',')[0].trim();
+    const duration = durStr.includes('ms') ? parseFloat(durStr) : parseFloat(durStr) * 1000;
+    setTimeout(onEnd, duration + 50);
 }
 
 function recordState() {
