@@ -36,6 +36,9 @@ let currentDomain = 0;
 let container;
 const historyStack = [];
 
+let needColumns;
+const needCards = [];
+
 const infoShown = {};
 const infoMessages = {
     2: "Cette application applique les principes de l'évaluation par tri de cartes ELADEB-R. Vous allez maintenant évaluer l'importance de chaque problème identifié.",
@@ -336,33 +339,61 @@ function renderNeedPresence() {
         nextStep();
         return;
     }
+    if (!needColumns) {
+        needColumns = document.createElement('div');
+        needColumns.id = 'need-columns';
+        const yesCol = document.createElement('div');
+        yesCol.id = 'need-yes';
+        yesCol.innerHTML = '<h3>Besoin</h3>';
+        const noCol = document.createElement('div');
+        noCol.id = 'need-no';
+        noCol.innerHTML = '<h3>Pas besoin</h3>';
+        needColumns.appendChild(yesCol);
+        needColumns.appendChild(noCol);
+    }
+
     const d = domains[currentDomain];
+    let card = needCards[currentDomain];
+    if (!card) {
+        card = createDomainCard(d, getProgressText());
+        needCards[currentDomain] = card;
+    } else {
+        const prog = card.querySelector('.progress-overlay');
+        if (prog) prog.textContent = getProgressText();
+    }
+    if (card.parentElement) card.parentElement.removeChild(card);
+
     const form = document.createElement('div');
     form.innerHTML = '<h2>Besoin d\'aide supplémentaire ?</h2>';
-    const div = createDomainCard(d, getProgressText());
-    const opts = document.createElement('div');
-    opts.innerHTML =
-        `<label><input type="radio" name="need" value="yes"> Besoin</label> ` +
-        `<label><input type="radio" name="need" value="no"> Pas besoin</label>`;
-    div.appendChild(opts);
-    const needVal = data.needs[currentDomain].presence;
-    opts.querySelector(`input[name=need][value="${needVal ? 'yes' : 'no'}"]`).checked = true;
-    form.appendChild(div);
-    const btn = document.createElement('button');
-    btn.textContent = 'Suivant';
-    btn.onclick = () => {
-        const val = document.querySelector('input[name=need]:checked').value;
+    const buttons = document.createElement('div');
+    buttons.className = 'diff-buttons';
+    const yesBtn = document.createElement('button');
+    yesBtn.className = 'diff-btn diff-problem';
+    yesBtn.textContent = 'Besoin';
+    yesBtn.onclick = () => {
         const need = data.needs[currentDomain];
-        need.presence = val === 'yes';
-        if (!need.presence) {
-            need.urgency = 0;
-            need.origin = '?';
-            need.detail = '';
-        }
+        need.presence = true;
+        document.getElementById('need-yes').appendChild(card);
         transition(nextDomain);
     };
-    form.appendChild(btn);
+    const noBtn = document.createElement('button');
+    noBtn.className = 'diff-btn diff-no-problem';
+    noBtn.textContent = 'Pas besoin';
+    noBtn.onclick = () => {
+        const need = data.needs[currentDomain];
+        need.presence = false;
+        need.urgency = 0;
+        need.origin = '?';
+        need.detail = '';
+        document.getElementById('need-no').appendChild(card);
+        transition(nextDomain);
+    };
+    buttons.appendChild(yesBtn);
+    buttons.appendChild(noBtn);
+    card.appendChild(buttons);
+    form.appendChild(card);
     container.appendChild(form);
+    container.appendChild(needColumns);
 }
 
 function renderNeedUrgency() {
