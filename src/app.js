@@ -34,6 +34,8 @@ const data = {
 let currentStep = 0;
 let currentDomain = 0;
 let container;
+let navBackBtn;
+let navNextBtn;
 const historyStack = [];
 
 let needColumns;
@@ -198,15 +200,19 @@ function goBack() {
     });
 }
 
+function updateNavBar() {
+    if (navBackBtn) {
+        navBackBtn.disabled = historyStack.length === 0;
+    }
+    if (navNextBtn) {
+        if (currentStep >= 7) navNextBtn.style.display = 'none';
+        else navNextBtn.style.display = '';
+    }
+}
+
 function render() {
     container.innerHTML = '';
-    if (historyStack.length) {
-        const back = document.createElement('button');
-        back.id = 'back';
-        back.innerHTML = '\u2190';
-        back.onclick = goBack;
-        container.appendChild(back);
-    }
+    updateNavBar();
     if (showStepInfo()) return;
     if (currentStep === 0) renderInitialQuestion();
     else if (currentStep === 1) renderDifficultyPresence();
@@ -674,6 +680,18 @@ function renderResults() {
 // Wait for the DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
     container = document.getElementById('step-container');
+    navBackBtn = document.getElementById('nav-back');
+    navNextBtn = document.getElementById('nav-next');
+    if (navBackBtn) navBackBtn.onclick = goBack;
+    if (navNextBtn) navNextBtn.onclick = handleNavNext;
     render();
 });
+
+function handleNavNext() {
+    if (currentStep >= 1 && currentStep <= 5) {
+        nextDomain();
+    } else {
+        nextStep();
+    }
+}
 
