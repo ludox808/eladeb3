@@ -253,19 +253,17 @@ function renderNeedPresence() {
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         const val = document.querySelector('input[name=need]:checked').value;
-        data.needs[currentDomain].presence = val === 'yes';
-      
-        if (!data.needs[currentDomain].presence) {
-  data.needs[currentDomain].urgency = 0;
-  data.needs[currentDomain].origin = '?';
-  data.needs[currentDomain].detail = '';
-}
-transition(nextDomain);
+        const need = data.needs[currentDomain];
+        need.presence = val === 'yes';
 
-      
-        if (!data.needs[currentDomain].presence) { data.needs[currentDomain].urgency = 0; data.needs[currentDomain].origin = '?'; }
+        if (!need.presence) {
+            need.urgency = 0;
+            need.origin = '?';
+            need.detail = '';
+        }
+
         transition(nextDomain);
- 
+
     };
     form.appendChild(btn);
     container.appendChild(form);
