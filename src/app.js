@@ -117,6 +117,41 @@ function createDomainCard(domain, progress) {
     return div;
 }
 
+function createSummaryCard(domain) {
+    const div = document.createElement('div');
+    div.className = 'summary-card';
+    const icon = document.createElement('i');
+    icon.className = `fa ${domain.icons[0]} domain-icon`;
+    div.appendChild(icon);
+    const span = document.createElement('span');
+    span.textContent = domain.label;
+    div.appendChild(span);
+    return div;
+}
+
+function buildSummaryContainer() {
+    const cont = document.createElement('div');
+    cont.className = 'summary-container';
+    const probCol = document.createElement('div');
+    probCol.className = 'summary-column';
+    const probTitle = document.createElement('h3');
+    probTitle.textContent = 'Problème';
+    probCol.appendChild(probTitle);
+    const noProbCol = document.createElement('div');
+    noProbCol.className = 'summary-column';
+    const noProbTitle = document.createElement('h3');
+    noProbTitle.textContent = 'Pas de problème';
+    noProbCol.appendChild(noProbTitle);
+    for (let i = 0; i < currentDomain; i++) {
+        const card = createSummaryCard(domains[i]);
+        if (data.difficulties[i].presence) probCol.appendChild(card);
+        else noProbCol.appendChild(card);
+    }
+    cont.appendChild(probCol);
+    cont.appendChild(noProbCol);
+    return cont;
+}
+
 function nextStep() {
     recordState();
     currentStep++;
@@ -221,6 +256,7 @@ function renderDifficultyPresence() {
 
     form.appendChild(div);
     container.appendChild(form);
+    container.appendChild(buildSummaryContainer());
 }
 
 function renderDifficultyIntensity() {
