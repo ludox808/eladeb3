@@ -46,10 +46,15 @@ const infoMessages = {
 };
 
 function transition(action) {
+    const h = container.offsetHeight;
+    container.style.minHeight = `${h}px`;
     container.classList.add('fade-out');
     setTimeout(() => {
         action();
         container.classList.remove('fade-out');
+        requestAnimationFrame(() => {
+            container.style.minHeight = '';
+        });
     }, 300);
 }
 
