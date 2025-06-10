@@ -58,47 +58,53 @@ GROUP_ORDER = [
     "Santé",
 ]
 
-# Sort domains by theme so they appear grouped
-sorted_domains = [
-    d for theme in GROUP_ORDER for d in DATA if THEMES[d] == theme
-]
-scores = [DATA[d] for d in sorted_domains]
 
-# Colors from green (0) to red (3)
-cmap = plt.cm.get_cmap("RdYlGn_r")
-colors = [cmap(score / 3) for score in scores]
+def create_bar_chart(filename: str = "eladeb_bar_chart.png", show: bool = False):
+    """Generate the horizontal bar chart and save it."""
+    # Sort domains by theme so they appear grouped
+    sorted_domains = [
+        d for theme in GROUP_ORDER for d in DATA if THEMES[d] == theme
+    ]
+    scores = [DATA[d] for d in sorted_domains]
 
-fig, ax = plt.subplots(figsize=(10, 8))
+    # Colors from green (0) to red (3)
+    cmap = plt.cm.get_cmap("RdYlGn_r")
+    colors = [cmap(score / 3) for score in scores]
 
-positions = range(len(sorted_domains))
-bar_container = ax.barh(positions, scores, color=colors)
-ax.set_yticks(positions)
-ax.set_yticklabels(sorted_domains)
-ax.invert_yaxis()
-ax.set_xlabel("Score (0-3)")
-ax.set_xlim(0, 3)
-ax.set_title("Évaluation ELADEB-R")
+    fig, ax = plt.subplots(figsize=(10, 8))
 
-# Display numeric value to the right of each bar
-for bar, score in zip(bar_container, scores):
-    ax.text(
-        bar.get_width() + 0.05,
-        bar.get_y() + bar.get_height() / 2,
-        str(score),
-        va="center"
-    )
+    positions = range(len(sorted_domains))
+    bar_container = ax.barh(positions, scores, color=colors)
+    ax.set_yticks(positions)
+    ax.set_yticklabels(sorted_domains)
+    ax.invert_yaxis()
+    ax.set_xlabel("Score (0-3)")
+    ax.set_xlim(0, 3)
+    ax.set_title("Évaluation ELADEB-R")
 
-# Draw horizontal lines to separate themes
-idx = 0
-for theme in GROUP_ORDER:
-    count = sum(1 for d in DATA if THEMES[d] == theme)
-    if idx > 0:
-        ax.axhline(idx - 0.5, color="grey", linewidth=0.5)
-    idx += count
+    # Display numeric value to the right of each bar
+    for bar, score in zip(bar_container, scores):
+        ax.text(
+            bar.get_width() + 0.05,
+            bar.get_y() + bar.get_height() / 2,
+            str(score),
+            va="center"
+        )
 
-fig.tight_layout()
-# Save to file instead of showing directly
-fig.savefig("eladeb_bar_chart.png", dpi=300)
+    # Draw horizontal lines to separate themes
+    idx = 0
+    for theme in GROUP_ORDER:
+        count = sum(1 for d in DATA if THEMES[d] == theme)
+        if idx > 0:
+            ax.axhline(idx - 0.5, color="grey", linewidth=0.5)
+        idx += count
+
+    fig.tight_layout()
+    fig.savefig(filename, dpi=300)
+    if show:
+        plt.show()
+    return fig
+
 
 if __name__ == "__main__":
-    plt.show()
+    create_bar_chart(show=True)

@@ -644,6 +644,7 @@ function renderResults() {
 }
 
 // Wait for the DOM to be fully loaded before initializing
+
 document.addEventListener('DOMContentLoaded', () => {
     container = document.getElementById('step-container');
     navBackBtn = document.getElementById('nav-back');
@@ -652,6 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navNextBtn) navNextBtn.onclick = handleNavNext;
     render();
 });
+
 
 function handleNavNext() {
     if (currentStep >= 1 && currentStep <= 5) {
