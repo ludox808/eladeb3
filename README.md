@@ -35,6 +35,7 @@ This generates `axes_scores_chart.png` in the repository root and shows the char
 
 
 
+
 ## Continuous Integration
 
 The repository includes a GitHub Actions workflow located at `.github/workflows/lint.yml`.
@@ -43,5 +44,6 @@ It automatically checks syntax of the Python and JavaScript files when a pull re
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
 
 
