@@ -1,52 +1,9 @@
-// JavaScript logic extracted from index.html
+import { domains, infoMessages, state } from './state.js';
+import { drawCharts } from './charts.js';
 
-const domains = [
-    { label: "Lieu de vie", theme: "Conditions de vie", icons: ["fa-home", "fa-bed", "fa-tree"] },
-    { label: "Finances", theme: "Conditions de vie", icons: ["fa-euro-sign", "fa-wallet", "fa-money-bill"] },
-    { label: "Travail", theme: "Conditions de vie", icons: ["fa-briefcase", "fa-users", "fa-chart-line"] },
-    { label: "Droit & justice", theme: "Conditions de vie", icons: ["fa-gavel", "fa-balance-scale", "fa-file-contract"] },
-    { label: "Temps libre", theme: "Pragmatique du quotidien", icons: ["fa-clock", "fa-futbol", "fa-book"] },
-    { label: "Tâches administratives", theme: "Pragmatique du quotidien", icons: ["fa-file-alt", "fa-envelope", "fa-folder-open"] },
-    { label: "Entretien du ménage", theme: "Pragmatique du quotidien", icons: ["fa-broom", "fa-soap", "fa-trash"] },
-    { label: "Déplacements", theme: "Pragmatique du quotidien", icons: ["fa-bus", "fa-car", "fa-bicycle"] },
-    { label: "Fréquentation des lieux publics", theme: "Pragmatique du quotidien", icons: ["fa-store", "fa-shopping-cart", "fa-landmark"] },
-    { label: "Connaissances et amitiés", theme: "Relations", icons: ["fa-user-friends", "fa-handshake", "fa-users"] },
-    { label: "Famille", theme: "Relations", icons: ["fa-house-user", "fa-people-roof", "fa-children"] },
-    { label: "Enfants", theme: "Relations", icons: ["fa-child", "fa-baby", "fa-school"] },
-    { label: "Relations sentimentales", theme: "Relations", icons: ["fa-heart", "fa-ring", "fa-kiss-wink-heart"] },
-    { label: "Alimentation", theme: "Santé", icons: ["fa-utensils", "fa-carrot", "fa-apple-alt"] },
-    { label: "Hygiène personnelle", theme: "Santé", icons: ["fa-shower", "fa-soap", "fa-tooth"] },
-    { label: "Santé physique", theme: "Santé", icons: ["fa-heartbeat", "fa-stethoscope", "fa-dumbbell"] },
-    { label: "Santé psychique", theme: "Santé", icons: ["fa-brain", "fa-face-smile", "fa-comment-dots"] },
-    { label: "Addiction", theme: "Santé", icons: ["fa-wine-bottle", "fa-smoking", "fa-cannabis"] },
-    { label: "Traitement", theme: "Santé", icons: ["fa-pills", "fa-syringe", "fa-prescription-bottle-medical"] },
-    { label: "Spiritualité & croyances", theme: "Santé", icons: ["fa-pray", "fa-place-of-worship", "fa-book-bible"] },
-    { label: "Sexualité", theme: "Santé", icons: ["fa-venus-mars", "fa-heart", "fa-kiss"] }
-];
-
-const data = {
-    initialQuestion: '',
-    difficulties: domains.map(() => ({ presence: false, intensity: 0 })),
-    needs: domains.map(() => ({ presence: false, urgency: 0, origin: '?', detail: '' })),
-    priority: ''
-};
-
-let currentStep = 0;
-let currentDomain = 0;
 let container;
-const historyStack = [];
-
 let needColumns;
 const needCards = [];
-
-const infoShown = {};
-const infoMessages = {
-    2: "Cette application applique les principes de l'évaluation par tri de cartes ELADEB-R. Vous allez maintenant évaluer l'importance de chaque problème identifié.",
-    3: "Vous allez maintenant indiquer si une aide supplémentaire est souhaitée.",
-    4: "Vous allez maintenant préciser l'urgence de l'aide.",
-    5: "Vous allez maintenant choisir l'origine de l'aide souhaitée.",
-    6: "Enfin, vous pourrez préciser l'action prioritaire à mener."
-};
 
 function escapeHTML(str) {
     return str.replace(/[&<>"']/g, c => ({
@@ -80,13 +37,13 @@ function transition(action) {
 }
 
 function recordState() {
-    historyStack.push({ step: currentStep, domain: currentDomain });
+    state.historyStack.push({ step: state.currentStep, domain: state.currentDomain });
 }
 
 function showStepInfo() {
-    const msg = infoMessages[currentStep];
-    if (msg && !infoShown[currentStep]) {
-        infoShown[currentStep] = true;
+    const msg = infoMessages[state.currentStep];
+    if (msg && !state.infoShown[state.currentStep]) {
+        state.infoShown[state.currentStep] = true;
         const div = document.createElement('div');
         div.innerHTML = `<p>${msg}</p><button id="continue">Commencer</button>`;
         container.appendChild(div);
@@ -97,17 +54,17 @@ function showStepInfo() {
 }
 
 function getProgressText() {
-    if (currentStep === 1 || currentStep === 3) {
-        return `${currentDomain + 1}/${domains.length}`;
+    if (state.currentStep === 1 || state.currentStep === 3) {
+        return `${state.currentDomain + 1}/${domains.length}`;
     }
-    if (currentStep === 2) {
-        const total = data.difficulties.filter(d => d.presence).length;
-        const idx = data.difficulties.slice(0, currentDomain + 1).filter(d => d.presence).length;
+    if (state.currentStep === 2) {
+        const total = state.data.difficulties.filter(d => d.presence).length;
+        const idx = state.data.difficulties.slice(0, state.currentDomain + 1).filter(d => d.presence).length;
         return `${idx}/${total}`;
     }
-    if (currentStep === 4 || currentStep === 5) {
-        const total = data.needs.filter(n => n.presence).length;
-        const idx = data.needs.slice(0, currentDomain + 1).filter(n => n.presence).length;
+    if (state.currentStep === 4 || state.currentStep === 5) {
+        const total = state.data.needs.filter(n => n.presence).length;
+        const idx = state.data.needs.slice(0, state.currentDomain + 1).filter(n => n.presence).length;
         return `${idx}/${total}`;
     }
     return '';
@@ -161,9 +118,9 @@ function buildSummaryContainer() {
     const noProbTitle = document.createElement('h3');
     noProbTitle.textContent = 'Pas de problème';
     noProbCol.appendChild(noProbTitle);
-    for (let i = 0; i < currentDomain; i++) {
+    for (let i = 0; i < state.currentDomain; i++) {
         const card = createSummaryCard(domains[i]);
-        if (data.difficulties[i].presence) probCol.appendChild(card);
+        if (state.data.difficulties[i].presence) probCol.appendChild(card);
         else noProbCol.appendChild(card);
     }
     cont.appendChild(probCol);
@@ -173,15 +130,15 @@ function buildSummaryContainer() {
 
 function nextStep() {
     recordState();
-    currentStep++;
-    currentDomain = 0;
+    state.currentStep++;
+    state.currentDomain = 0;
     render();
 }
 
 function nextDomain() {
     recordState();
-    currentDomain++;
-    if (currentDomain >= domains.length) {
+    state.currentDomain++;
+    if (state.currentDomain >= domains.length) {
         nextStep();
     } else {
         render();
@@ -189,18 +146,18 @@ function nextDomain() {
 }
 
 function goBack() {
-    const prev = historyStack.pop();
+    const prev = state.historyStack.pop();
     if (!prev) return;
     transition(() => {
-        currentStep = prev.step;
-        currentDomain = prev.domain;
+        state.currentStep = prev.step;
+        state.currentDomain = prev.domain;
         render();
     });
 }
 
 function render() {
     container.innerHTML = '';
-    if (historyStack.length) {
+    if (state.historyStack.length) {
         const back = document.createElement('button');
         back.id = 'back';
         back.innerHTML = '\u2190';
@@ -208,13 +165,13 @@ function render() {
         container.appendChild(back);
     }
     if (showStepInfo()) return;
-    if (currentStep === 0) renderInitialQuestion();
-    else if (currentStep === 1) renderDifficultyPresence();
-    else if (currentStep === 2) renderDifficultyIntensity();
-    else if (currentStep === 3) renderNeedPresence();
-    else if (currentStep === 4) renderNeedUrgency();
-    else if (currentStep === 5) renderNeedOrigin();
-    else if (currentStep === 6) renderPriority();
+    if (state.currentStep === 0) renderInitialQuestion();
+    else if (state.currentStep === 1) renderDifficultyPresence();
+    else if (state.currentStep === 2) renderDifficultyIntensity();
+    else if (state.currentStep === 3) renderNeedPresence();
+    else if (state.currentStep === 4) renderNeedUrgency();
+    else if (state.currentStep === 5) renderNeedOrigin();
+    else if (state.currentStep === 6) renderPriority();
     else renderResults();
 }
 
@@ -226,26 +183,24 @@ function renderInitialQuestion() {
     container.appendChild(div);
 
     const textarea = document.getElementById('question');
-    textarea.value = data.initialQuestion || '';
+    textarea.value = state.data.initialQuestion || '';
 
     document.getElementById('next').onclick = () => {
-        data.initialQuestion = textarea.value;
+        state.data.initialQuestion = textarea.value;
         transition(nextStep);
     };
 }
 
 function renderDifficultyPresence() {
-    if (currentDomain >= domains.length) {
+    if (state.currentDomain >= domains.length) {
         nextStep();
         return;
     }
 
-    // Header
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
 
-    // Card currently being evaluated
-    const d = domains[currentDomain];
+    const d = domains[state.currentDomain];
     const div = createDomainCard(d, getProgressText());
     const buttons = document.createElement('div');
     buttons.className = 'diff-buttons';
@@ -254,7 +209,7 @@ function renderDifficultyPresence() {
     probBtn.className = 'diff-btn diff-problem';
     probBtn.textContent = 'Problème';
     probBtn.onclick = () => {
-        data.difficulties[currentDomain].presence = true;
+        state.data.difficulties[state.currentDomain].presence = true;
         div.classList.add('chosen-problem');
         transition(nextDomain);
     };
@@ -263,8 +218,8 @@ function renderDifficultyPresence() {
     noProbBtn.className = 'diff-btn diff-no-problem';
     noProbBtn.textContent = 'Pas de problème';
     noProbBtn.onclick = () => {
-        data.difficulties[currentDomain].presence = false;
-        data.difficulties[currentDomain].intensity = 0;
+        state.data.difficulties[state.currentDomain].presence = false;
+        state.data.difficulties[state.currentDomain].intensity = 0;
         div.classList.add('chosen-no-problem');
         transition(nextDomain);
     };
@@ -273,15 +228,14 @@ function renderDifficultyPresence() {
     buttons.appendChild(noProbBtn);
     div.appendChild(buttons);
 
-    if (data.difficulties[currentDomain].presence) {
+    if (state.data.difficulties[state.currentDomain].presence) {
         div.classList.add('chosen-problem');
-    } else if (!data.difficulties[currentDomain].presence &&
-               data.difficulties[currentDomain].intensity === 0) {
+    } else if (!state.data.difficulties[state.currentDomain].presence &&
+               state.data.difficulties[state.currentDomain].intensity === 0) {
         div.classList.add('chosen-no-problem');
     }
     form.appendChild(div);
 
-    // Columns showing already sorted cards
     const cols = document.createElement('div');
     cols.id = 'diff-columns';
 
@@ -293,10 +247,9 @@ function renderDifficultyPresence() {
     colOk.id = 'col-ok';
     colOk.innerHTML = '<h3>Pas de problème</h3>';
 
-    // Append cards from previous answers
-    for (let i = 0; i < currentDomain; i++) {
+    for (let i = 0; i < state.currentDomain; i++) {
         const card = createDomainCard(domains[i]);
-        if (data.difficulties[i].presence) {
+        if (state.data.difficulties[i].presence) {
             card.classList.add('chosen-problem');
             colProb.appendChild(card);
         } else {
@@ -313,14 +266,14 @@ function renderDifficultyPresence() {
 }
 
 function renderDifficultyIntensity() {
-    while (currentDomain < domains.length && !data.difficulties[currentDomain].presence) {
-        currentDomain++;
+    while (state.currentDomain < domains.length && !state.data.difficulties[state.currentDomain].presence) {
+        state.currentDomain++;
     }
-    if (currentDomain >= domains.length) {
+    if (state.currentDomain >= domains.length) {
         nextStep();
         return;
     }
-    const d = domains[currentDomain];
+    const d = domains[state.currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Difficultés : importance du problème</h2>';
     const div = createDomainCard(d, getProgressText());
@@ -331,7 +284,7 @@ function renderDifficultyIntensity() {
         `<label><input type="radio" name="int" value="3"> Très important</label>`;
     div.appendChild(opts);
 
-    const intVal = data.difficulties[currentDomain].intensity;
+    const intVal = state.data.difficulties[state.currentDomain].intensity;
     if (intVal > 0) {
         opts.querySelector(`input[name=int][value="${intVal}"]`).checked = true;
     } else {
@@ -343,7 +296,7 @@ function renderDifficultyIntensity() {
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         const val = document.querySelector('input[name=int]:checked').value;
-        data.difficulties[currentDomain].intensity = parseInt(val, 10);
+        state.data.difficulties[state.currentDomain].intensity = parseInt(val, 10);
         transition(nextDomain);
     };
     form.appendChild(btn);
@@ -351,7 +304,7 @@ function renderDifficultyIntensity() {
 }
 
 function renderNeedPresence() {
-    if (currentDomain >= domains.length) {
+    if (state.currentDomain >= domains.length) {
         nextStep();
         return;
     }
@@ -368,11 +321,11 @@ function renderNeedPresence() {
         needColumns.appendChild(noCol);
     }
 
-    const d = domains[currentDomain];
-    let card = needCards[currentDomain];
+    const d = domains[state.currentDomain];
+    let card = needCards[state.currentDomain];
     if (!card) {
         card = createDomainCard(d, getProgressText());
-        needCards[currentDomain] = card;
+        needCards[state.currentDomain] = card;
     } else {
         const prog = card.querySelector('.progress-overlay');
         if (prog) prog.textContent = getProgressText();
@@ -387,7 +340,7 @@ function renderNeedPresence() {
     yesBtn.className = 'diff-btn diff-problem';
     yesBtn.textContent = 'Besoin';
     yesBtn.onclick = () => {
-        const need = data.needs[currentDomain];
+        const need = state.data.needs[state.currentDomain];
         need.presence = true;
         document.getElementById('need-yes').appendChild(card);
         transition(nextDomain);
@@ -396,7 +349,7 @@ function renderNeedPresence() {
     noBtn.className = 'diff-btn diff-no-problem';
     noBtn.textContent = 'Pas besoin';
     noBtn.onclick = () => {
-        const need = data.needs[currentDomain];
+        const need = state.data.needs[state.currentDomain];
         need.presence = false;
         need.urgency = 0;
         need.origin = '?';
@@ -413,14 +366,14 @@ function renderNeedPresence() {
 }
 
 function renderNeedUrgency() {
-    while (currentDomain < domains.length && !data.needs[currentDomain].presence) {
-        currentDomain++;
+    while (state.currentDomain < domains.length && !state.data.needs[state.currentDomain].presence) {
+        state.currentDomain++;
     }
-    if (currentDomain >= domains.length) {
+    if (state.currentDomain >= domains.length) {
         nextStep();
         return;
     }
-    const d = domains[currentDomain];
+    const d = domains[state.currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Urgence de l\'aide souhaitée</h2>';
     const div = createDomainCard(d, getProgressText());
@@ -431,7 +384,7 @@ function renderNeedUrgency() {
         `<label><input type="radio" name="urg" value="3"> Urgent</label>`;
     div.appendChild(opts);
 
-    const urgVal = data.needs[currentDomain].urgency;
+    const urgVal = state.data.needs[state.currentDomain].urgency;
     if (urgVal > 0) {
         opts.querySelector(`input[name=urg][value="${urgVal}"]`).checked = true;
     } else {
@@ -443,7 +396,7 @@ function renderNeedUrgency() {
     btn.textContent = 'Suivant';
     btn.onclick = () => {
         const val = document.querySelector('input[name=urg]:checked').value;
-        data.needs[currentDomain].urgency = parseInt(val, 10);
+        state.data.needs[state.currentDomain].urgency = parseInt(val, 10);
         transition(nextDomain);
     };
     form.appendChild(btn);
@@ -451,14 +404,14 @@ function renderNeedUrgency() {
 }
 
 function renderNeedOrigin() {
-    while (currentDomain < domains.length && !data.needs[currentDomain].presence) {
-        currentDomain++;
+    while (state.currentDomain < domains.length && !state.data.needs[state.currentDomain].presence) {
+        state.currentDomain++;
     }
-    if (currentDomain >= domains.length) {
+    if (state.currentDomain >= domains.length) {
         nextStep();
         return;
     }
-    const d = domains[currentDomain];
+    const d = domains[state.currentDomain];
     const form = document.createElement('div');
     form.innerHTML = '<h2>Origine de l\'aide souhaitée</h2>';
     const div = createDomainCard(d, getProgressText());
@@ -474,8 +427,8 @@ function renderNeedOrigin() {
     div.appendChild(opts);
 
     const select = opts.querySelector('#orig');
-    select.value = data.needs[currentDomain].origin;
-    opts.querySelector('#origDetail').value = data.needs[currentDomain].detail || '';
+    select.value = state.data.needs[state.currentDomain].origin;
+    opts.querySelector('#origDetail').value = state.data.needs[state.currentDomain].detail || '';
 
     form.appendChild(div);
     const btn = document.createElement('button');
@@ -483,8 +436,8 @@ function renderNeedOrigin() {
     btn.onclick = () => {
         const val = document.getElementById('orig').value;
         const detail = document.getElementById('origDetail').value;
-        data.needs[currentDomain].origin = val;
-        data.needs[currentDomain].detail = detail;
+        state.data.needs[state.currentDomain].origin = val;
+        state.data.needs[state.currentDomain].detail = detail;
         transition(nextDomain);
     };
     form.appendChild(btn);
@@ -499,9 +452,9 @@ function renderPriority() {
         '<button id="next">Terminer</button>';
     container.appendChild(div);
     const textarea = document.getElementById('priority');
-    textarea.value = data.priority || '';
+    textarea.value = state.data.priority || '';
     document.getElementById('next').onclick = () => {
-        data.priority = textarea.value;
+        state.data.priority = textarea.value;
         transition(nextStep);
     };
 }
@@ -511,7 +464,7 @@ function saveResults() {
     const record = {
         id: Date.now().toString(36),
         timestamp: new Date().toISOString(),
-        data: JSON.parse(JSON.stringify(data))
+        data: JSON.parse(JSON.stringify(state.data))
     };
     all.push(record);
     localStorage.setItem('eladeb-data', JSON.stringify(all));
@@ -535,36 +488,35 @@ function renderResults() {
     dateP.textContent = `Date : ${dateStr} - Heure : ${timeStr}`;
     div.appendChild(dateP);
 
-    // Afficher les réponses aux questions ouvertes
-    if (data.initialQuestion) {
+    if (state.data.initialQuestion) {
         const initialP = document.createElement('p');
         const strong = document.createElement('strong');
         strong.textContent = 'Problème principal :';
         initialP.appendChild(strong);
         initialP.append(' ');
-        initialP.appendChild(document.createTextNode(data.initialQuestion));
+        initialP.appendChild(document.createTextNode(state.data.initialQuestion));
         div.appendChild(initialP);
     }
-    if (data.priority) {
+    if (state.data.priority) {
         const priorityP = document.createElement('p');
         const strong = document.createElement('strong');
         strong.textContent = 'Action prioritaire souhaitée :';
         priorityP.appendChild(strong);
         priorityP.append(' ');
-        priorityP.appendChild(document.createTextNode(data.priority));
+        priorityP.appendChild(document.createTextNode(state.data.priority));
         div.appendChild(priorityP);
     }
 
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
 
-    const maxUrg = Math.max(...data.needs.map(n => n.urgency));
+    const maxUrg = Math.max(...state.data.needs.map(n => n.urgency));
 
     table.innerHTML = header + domains.map((d, i) => {
-        const diff = data.difficulties[i].intensity;
-        const need = data.needs[i].urgency;
-        const orig = data.needs[i].origin;
-        const detail = data.needs[i].detail || '';
+        const diff = state.data.difficulties[i].intensity;
+        const need = state.data.needs[i].urgency;
+        const orig = state.data.needs[i].origin;
+        const detail = state.data.needs[i].detail || '';
         const rowCls = (diff >= 3 || need >= 3) ? ' class="high"' : '';
 
         const diffCls = diff > 0 ? ` class="val-${diff}"` : '';
@@ -572,7 +524,7 @@ function renderResults() {
         if (need > 0) needClasses.push(`val-${need}`);
         if (need === maxUrg && need > 0) needClasses.push('high-urgency');
         const needCls = needClasses.length ? ` class="${needClasses.join(' ')}"` : '';
-        const needDisplay = data.needs[i].presence ? need : '—';
+        const needDisplay = state.data.needs[i].presence ? need : '—';
 
         return `<tr${rowCls}><td>${d.label}</td><td${diffCls}>${diff}</td><td${needCls}>${needDisplay}</td><td>${orig}</td><td><input type="text" data-index="${i}" class="origin-detail" value="${escapeHTML(detail)}"></td></tr>`;
     }).join('');
@@ -580,15 +532,15 @@ function renderResults() {
     table.querySelectorAll('.origin-detail').forEach(input => {
         input.addEventListener('input', e => {
             const idx = parseInt(e.target.getAttribute('data-index'), 10);
-            data.needs[idx].detail = e.target.value;
+            state.data.needs[idx].detail = e.target.value;
         });
     });
 
     const themeScores = {};
     domains.forEach((d, i) => {
         if (!themeScores[d.theme]) themeScores[d.theme] = { diff: 0, need: 0 };
-        themeScores[d.theme].diff += data.difficulties[i].intensity;
-        themeScores[d.theme].need += data.needs[i].urgency;
+        themeScores[d.theme].diff += state.data.difficulties[i].intensity;
+        themeScores[d.theme].need += state.data.needs[i].urgency;
     });
     const summary = document.createElement('ul');
     const themeLabels = [];
@@ -605,10 +557,10 @@ function renderResults() {
     div.appendChild(summary);
 
     const diffNotNeed = domains
-        .filter((d, i) => data.difficulties[i].presence && !data.needs[i].presence)
+        .filter((d, i) => state.data.difficulties[i].presence && !state.data.needs[i].presence)
         .map(d => d.label);
     const needNotDiff = domains
-        .filter((d, i) => !data.difficulties[i].presence && data.needs[i].presence)
+        .filter((d, i) => !state.data.difficulties[i].presence && state.data.needs[i].presence)
         .map(d => d.label);
     if (diffNotNeed.length || needNotDiff.length) {
         const mismatch = document.createElement('p');
@@ -632,48 +584,10 @@ function renderResults() {
 
     container.appendChild(div);
 
-    new Chart(canvas.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: domains.map(d => d.label),
-            datasets: [
-                {
-                    label: 'Difficult\xE9',
-                    backgroundColor: '#4CAF50',
-                    data: domains.map((d,i) => data.difficulties[i].intensity)
-                },
-                {
-                    label: 'Besoin',
-                    backgroundColor: '#2196F3',
-                    data: domains.map((d,i) => data.needs[i].urgency)
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, max: 3 } }
-        }
-    });
-
-    new Chart(themeCanvas.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: themeLabels,
-            datasets: [
-                { label: 'Difficult\xE9', backgroundColor: '#4CAF50', data: themeDiff },
-                { label: 'Besoin', backgroundColor: '#2196F3', data: themeNeed }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true } }
-        }
-    });
+    drawCharts(canvas, themeCanvas, domains, state.data, themeLabels, themeDiff, themeNeed);
 }
 
-// Wait for the DOM to be fully loaded before initializing
-document.addEventListener('DOMContentLoaded', () => {
+export function init() {
     container = document.getElementById('step-container');
     render();
-});
-
+}

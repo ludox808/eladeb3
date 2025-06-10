@@ -23,7 +23,10 @@ jobs:
 
       - name: Check JavaScript syntax
         run: |
-          node --check src/app.js
+          node --check src/main.js
+          node --check src/ui.js
+          node --check src/state.js
+          node --check src/charts.js
 
       - name: Validate HTML
         run: |
