@@ -1,0 +1,12 @@
+{
+  "name": "eladeb3",
+  "version": "1.0.0",
+  "description": "demo app",
+  "devDependencies": {
+    "jest": "^29.6.1",
+    "jsdom": "^22.1.0"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}

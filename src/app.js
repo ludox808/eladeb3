@@ -672,8 +672,15 @@ function renderResults() {
 }
 
 // Wait for the DOM to be fully loaded before initializing
-document.addEventListener('DOMContentLoaded', () => {
-    container = document.getElementById('step-container');
-    render();
-});
+if (typeof document !== 'undefined' &&
+    (typeof process === 'undefined' || !process.env.JEST_WORKER_ID)) {
+    document.addEventListener('DOMContentLoaded', () => {
+        container = document.getElementById('step-container');
+        render();
+    });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { createDomainCard, saveResults, data };
+}
 

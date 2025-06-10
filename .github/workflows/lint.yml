@@ -17,6 +17,12 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Node dependencies
+        run: npm install
+
       - name: Check Python files
         run: |
           python -m py_compile plot_axes_scores.py plot_eladeb.py
@@ -29,4 +35,9 @@ jobs:
         run: |
           npx htmlhint index.html
         continue-on-error: true
+
+      - name: Run tests
+        run: |
+          npm test --silent
+          pytest -q
 
