@@ -97,6 +97,18 @@
         .diff-problem { background-color: #f44336; }
         .diff-no-problem { background-color: #4CAF50; }
 
+        #diff-columns {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        #col-problem, #col-ok {
+            flex: 1;
+        }
+        #col-problem h3, #col-ok h3 {
+            text-align: center;
+        }
+
         #step-container {
             opacity: 1;
             transition: opacity 0.3s ease;

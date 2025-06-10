@@ -185,12 +185,17 @@ function renderDifficultyPresence() {
         nextStep();
         return;
     }
-    const d = domains[currentDomain];
+
+    // Header
     const form = document.createElement('div');
     form.innerHTML = `<h2>Difficultés</h2>`;
+
+    // Card currently being evaluated
+    const d = domains[currentDomain];
     const div = createDomainCard(d, getProgressText());
     const buttons = document.createElement('div');
     buttons.className = 'diff-buttons';
+
     const probBtn = document.createElement('button');
     probBtn.className = 'diff-btn diff-problem';
     probBtn.textContent = 'Problème';
@@ -199,6 +204,7 @@ function renderDifficultyPresence() {
         div.classList.add('chosen-problem');
         transition(nextDomain);
     };
+
     const noProbBtn = document.createElement('button');
     noProbBtn.className = 'diff-btn diff-no-problem';
     noProbBtn.textContent = 'Pas de problème';
@@ -208,6 +214,7 @@ function renderDifficultyPresence() {
         div.classList.add('chosen-no-problem');
         transition(nextDomain);
     };
+
     buttons.appendChild(probBtn);
     buttons.appendChild(noProbBtn);
     div.appendChild(buttons);
@@ -218,8 +225,35 @@ function renderDifficultyPresence() {
                data.difficulties[currentDomain].intensity === 0) {
         div.classList.add('chosen-no-problem');
     }
-
     form.appendChild(div);
+
+    // Columns showing already sorted cards
+    const cols = document.createElement('div');
+    cols.id = 'diff-columns';
+
+    const colProb = document.createElement('div');
+    colProb.id = 'col-problem';
+    colProb.innerHTML = '<h3>Problème</h3>';
+
+    const colOk = document.createElement('div');
+    colOk.id = 'col-ok';
+    colOk.innerHTML = '<h3>Pas de problème</h3>';
+
+    // Append cards from previous answers
+    for (let i = 0; i < currentDomain; i++) {
+        const card = createDomainCard(domains[i]);
+        if (data.difficulties[i].presence) {
+            card.classList.add('chosen-problem');
+            colProb.appendChild(card);
+        } else {
+            card.classList.add('chosen-no-problem');
+            colOk.appendChild(card);
+        }
+    }
+
+    cols.appendChild(colProb);
+    cols.appendChild(colOk);
+    form.appendChild(cols);
     container.appendChild(form);
 }
 
