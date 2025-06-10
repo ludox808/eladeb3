@@ -49,13 +49,15 @@ function transition(action) {
     const h = container.offsetHeight;
     container.style.minHeight = `${h}px`;
     container.classList.add('fade-out');
-    setTimeout(() => {
+    const onEnd = () => {
+        container.removeEventListener('transitionend', onEnd);
         action();
         container.classList.remove('fade-out');
         requestAnimationFrame(() => {
             container.style.minHeight = '';
         });
-    }, 300);
+    };
+    container.addEventListener('transitionend', onEnd, { once: true });
 }
 
 function recordState() {
