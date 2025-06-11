@@ -45,9 +45,9 @@ const infoShown = {};
 const infoMessages = {
     2: "Cette application applique les principes de l'évaluation par tri de cartes ELADEB-R. Vous allez maintenant évaluer l'importance de chaque problème identifié.",
     3: "Vous allez maintenant indiquer si une aide supplémentaire est souhaitée.",
-    4: "Vous allez maintenant préciser l'urgence de l'aide.",
-    5: "Vous allez maintenant choisir l'origine de l'aide souhaitée.",
-    6: "Enfin, vous pourrez préciser l'action prioritaire à mener."
+    5: "Vous allez maintenant préciser l'urgence de l'aide.",
+    6: "Vous allez maintenant choisir l'origine de l'aide souhaitée.",
+    7: "Enfin, vous pourrez préciser l'action prioritaire à mener."
 };
 
 function escapeHTML(str) {
@@ -107,7 +107,7 @@ function getProgressText() {
         const idx = data.difficulties.slice(0, currentDomain + 1).filter(d => d.presence).length;
         return `${idx}/${total}`;
     }
-    if (currentStep === 4 || currentStep === 5) {
+    if (currentStep === 5 || currentStep === 6) {
         const total = data.needs.filter(n => n.presence).length;
         const idx = data.needs.slice(0, currentDomain + 1).filter(n => n.presence).length;
         return `${idx}/${total}`;
@@ -286,9 +286,10 @@ function render() {
     else if (currentStep === 1) renderDifficultyPresence();
     else if (currentStep === 2) renderDifficultyIntensity();
     else if (currentStep === 3) renderNeedPresence();
-    else if (currentStep === 4) renderNeedUrgency();
-    else if (currentStep === 5) renderNeedOrigin();
-    else if (currentStep === 6) renderPriority();
+    else if (currentStep === 4) renderNeeds();
+    else if (currentStep === 5) renderNeedUrgency();
+    else if (currentStep === 6) renderNeedOrigin();
+    else if (currentStep === 7) renderPriority();
     else renderResults();
 }
 
@@ -474,6 +475,20 @@ function renderNeedPresence() {
     form.appendChild(card);
     container.appendChild(form);
     container.appendChild(needColumns);
+}
+
+function renderNeeds() {
+    if (!needColumns) return nextStep();
+    updateNeedColumn(document.getElementById('need-yes'));
+    updateNeedColumn(document.getElementById('need-no'));
+    const div = document.createElement('div');
+    div.innerHTML = '<h2>Besoins identifiés</h2>';
+    container.appendChild(div);
+    container.appendChild(needColumns);
+    const btn = document.createElement('button');
+    btn.textContent = 'Suivant';
+    btn.onclick = () => transition(nextStep);
+    container.appendChild(btn);
 }
 
 function renderNeedUrgency() {
@@ -751,7 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function handleNavNext() {
-    if (currentStep >= 1 && currentStep <= 5) {
+    if ((currentStep >= 1 && currentStep <= 3) ||
+        (currentStep >= 5 && currentStep <= 6)) {
         nextDomain();
     } else {
         nextStep();
