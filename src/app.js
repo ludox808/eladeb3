@@ -272,7 +272,9 @@ function goBack() {
 
 function updateNavBar() {
     if (navBackBtn) {
-        navBackBtn.disabled = historyStack.length === 0;
+        const atStart = historyStack.length === 0;
+        navBackBtn.disabled = atStart;
+        navBackBtn.classList.toggle('hidden', atStart);
     }
 }
 
