@@ -129,7 +129,30 @@ th {
     margin-right: 6px;
     color: #2196F3;
     font-size: 20px;
+}
 
+/* Colored columns for tri summary */
+.problem-column {
+    background-color: #ffebee;
+    border: 2px solid #f44336;
+}
+.problem-column h3 { color: #f44336; }
+
+.ok-column {
+    background-color: #e8f5e9;
+    border: 2px solid #4CAF50;
+}
+.ok-column h3 { color: #4CAF50; }
+
+.summary-extra {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+    .summary-container { flex-direction: column; }
 }
 
 #step-container {
