@@ -391,9 +391,12 @@ function renderNeedPresence() {
         noCol.innerHTML = '<h3>Pas besoin</h3>';
         needColumns.appendChild(yesCol);
         needColumns.appendChild(noCol);
+        updateNeedColumn(yesCol);
+        updateNeedColumn(noCol);
+    } else {
+        updateNeedColumn(document.getElementById('need-yes'));
+        updateNeedColumn(document.getElementById('need-no'));
     }
-    updateNeedColumn(document.getElementById('need-yes'));
-    updateNeedColumn(document.getElementById('need-no'));
 
     const d = domains[currentDomain];
     let card = needCards[currentDomain];
