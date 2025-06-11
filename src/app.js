@@ -650,6 +650,7 @@ function renderResults() {
     div.appendChild(themeCanvas);
 
     const printBtn = document.createElement('button');
+    printBtn.id = 'print-summary';
     printBtn.textContent = 'Imprimer la synthèse';
     printBtn.onclick = () => window.print();
     div.appendChild(printBtn);
