@@ -88,15 +88,55 @@
 
         #need-columns {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             margin-top: 20px;
         }
         #need-yes, #need-no {
-            flex: 1;
+            flex: 1 1 200px;
             margin: 0 10px;
+            padding: 4px;
+            border-radius: 6px;
+        }
+        #need-yes {
+            background-color: #e3f2fd;
+        }
+        #need-no {
+            background-color: #f0f0f0;
         }
         #need-yes h3, #need-no h3 {
             text-align: center;
+            margin-top: 0;
+        }
+
+        .need-column {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .need-mini-card {
+            width: 56px;
+            height: 56px;
+            background-color: #e3f2fd;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+            font-size: 10px;
+        }
+        .need-mini-card i {
+            font-size: 20px;
+            color: #2196F3;
+        }
+
+        .extra-indicator {
+            text-align: center;
+            margin-top: 4px;
+            font-size: 0.8em;
+            color: #555;
         }
 
         #diff-summary {
