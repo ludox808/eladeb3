@@ -194,3 +194,28 @@
             width: 100%;
             box-sizing: border-box;
         }
+
+        @page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+
+        @media print {
+            body {
+                background: none;
+                -webkit-print-color-adjust: exact;
+            }
+            #nav-bar,
+            #back,
+            #print-summary {
+                display: none !important;
+            }
+            button {
+                box-shadow: none;
+            }
+            .summary-card,
+            table,
+            canvas {
+                page-break-inside: avoid;
+            }
+        }
