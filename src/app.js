@@ -40,6 +40,7 @@ const historyStack = [];
 
 let needColumns;
 const needCards = [];
+const needThumbs = [];
 
 const infoShown = {};
 const infoMessages = {
@@ -136,6 +137,33 @@ function createDomainCard(domain, progress) {
     title.textContent = domain.label;
     div.appendChild(title);
     return div;
+}
+
+function createNeedMiniCard(domain) {
+    const div = document.createElement('div');
+    div.className = 'need-mini-card';
+    const icon = document.createElement('i');
+    icon.className = `fa ${domain.icons[0]}`;
+    div.appendChild(icon);
+    const label = document.createElement('span');
+    label.textContent = domain.label;
+    div.appendChild(label);
+    return div;
+}
+
+function updateNeedColumn(col) {
+    const cards = Array.from(col.querySelectorAll('.need-mini-card'));
+    let badge = col.querySelector('.extra-indicator');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'extra-indicator';
+        col.appendChild(badge);
+    }
+    cards.forEach((c, idx) => {
+        c.style.display = idx < 6 ? 'flex' : 'none';
+    });
+    const extra = cards.length - 6;
+    badge.textContent = extra > 0 ? `+${extra} non affichée${extra > 1 ? 's' : ''}` : '';
 }
 
 function buildSummaryTable() {
@@ -332,13 +360,17 @@ function renderNeedPresence() {
         needColumns.id = 'need-columns';
         const yesCol = document.createElement('div');
         yesCol.id = 'need-yes';
+        yesCol.className = 'need-column';
         yesCol.innerHTML = '<h3>Besoin</h3>';
         const noCol = document.createElement('div');
         noCol.id = 'need-no';
+        noCol.className = 'need-column';
         noCol.innerHTML = '<h3>Pas besoin</h3>';
         needColumns.appendChild(yesCol);
         needColumns.appendChild(noCol);
     }
+    updateNeedColumn(document.getElementById('need-yes'));
+    updateNeedColumn(document.getElementById('need-no'));
 
     const d = domains[currentDomain];
     let card = needCards[currentDomain];
@@ -361,7 +393,14 @@ function renderNeedPresence() {
     yesBtn.onclick = () => {
         const need = data.needs[currentDomain];
         need.presence = true;
-        document.getElementById('need-yes').appendChild(card);
+        let thumb = needThumbs[currentDomain];
+        if (!thumb) {
+            thumb = createNeedMiniCard(domains[currentDomain]);
+            needThumbs[currentDomain] = thumb;
+        }
+        document.getElementById('need-yes').appendChild(thumb);
+        updateNeedColumn(document.getElementById('need-yes'));
+        updateNeedColumn(document.getElementById('need-no'));
         transition(nextDomain);
     };
     const noBtn = document.createElement('button');
@@ -373,7 +412,14 @@ function renderNeedPresence() {
         need.urgency = 0;
         need.origin = '?';
         need.detail = '';
-        document.getElementById('need-no').appendChild(card);
+        let thumb = needThumbs[currentDomain];
+        if (!thumb) {
+            thumb = createNeedMiniCard(domains[currentDomain]);
+            needThumbs[currentDomain] = thumb;
+        }
+        document.getElementById('need-no').appendChild(thumb);
+        updateNeedColumn(document.getElementById('need-yes'));
+        updateNeedColumn(document.getElementById('need-no'));
         transition(nextDomain);
     };
     buttons.appendChild(yesBtn);
@@ -661,5 +707,9 @@ function handleNavNext() {
     } else {
         nextStep();
     }
+}
+
+if (typeof module !== 'undefined') {
+    module.exports = { createDomainCard, saveResults, data };
 }
 
