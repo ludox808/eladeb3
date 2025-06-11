@@ -152,17 +152,11 @@ function createNeedMiniCard(domain) {
 
 function updateNeedColumn(col) {
     const cards = Array.from(col.querySelectorAll('.need-mini-card'));
-    let badge = col.querySelector('.extra-indicator');
-    if (!badge) {
-        badge = document.createElement('div');
-        badge.className = 'extra-indicator';
-        col.appendChild(badge);
-    }
-    cards.forEach((c, idx) => {
-        c.style.display = idx < 6 ? 'flex' : 'none';
+    cards.forEach(c => {
+        c.style.display = 'flex';
     });
-    const extra = cards.length - 6;
-    badge.textContent = extra > 0 ? `+${extra} non affichée${extra > 1 ? 's' : ''}` : '';
+    const badge = col.querySelector('.extra-indicator');
+    if (badge) badge.remove();
 }
 
 function buildSummaryTable() {
@@ -206,9 +200,6 @@ function buildProblemSummary() {
     okCol.className = 'summary-column ok-column';
     okCol.innerHTML = '<h3>Pas de problème</h3>';
 
-    let probTotal = 0;
-    let okTotal = 0;
-
     domains.forEach((d, i) => {
         const card = document.createElement('div');
         card.className = 'summary-card';
@@ -217,26 +208,11 @@ function buildProblemSummary() {
         card.appendChild(icon);
         card.appendChild(document.createTextNode(d.label));
         if (data.difficulties[i].presence) {
-            probTotal++;
-            if (probTotal <= 6) probCol.appendChild(card);
+            probCol.appendChild(card);
         } else {
-            okTotal++;
-            if (okTotal <= 6) okCol.appendChild(card);
+            okCol.appendChild(card);
         }
     });
-
-    if (probTotal > 6) {
-        const badge = document.createElement('div');
-        badge.className = 'summary-extra';
-        badge.textContent = `+${probTotal - 6} autres`;
-        probCol.appendChild(badge);
-    }
-    if (okTotal > 6) {
-        const badge = document.createElement('div');
-        badge.className = 'summary-extra';
-        badge.textContent = `+${okTotal - 6} autres`;
-        okCol.appendChild(badge);
-    }
 
     container.appendChild(probCol);
     container.appendChild(okCol);
