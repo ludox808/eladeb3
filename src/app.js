@@ -35,7 +35,6 @@ let currentStep = 0;
 let currentDomain = 0;
 let container;
 let navBackBtn;
-let navNextBtn;
 const historyStack = [];
 
 let needColumns;
@@ -197,10 +196,6 @@ function goBack() {
 function updateNavBar() {
     if (navBackBtn) {
         navBackBtn.disabled = historyStack.length === 0;
-    }
-    if (navNextBtn) {
-        if (currentStep >= 7) navNextBtn.style.display = 'none';
-        else navNextBtn.style.display = '';
     }
 }
 
@@ -648,18 +643,6 @@ function renderResults() {
 document.addEventListener('DOMContentLoaded', () => {
     container = document.getElementById('step-container');
     navBackBtn = document.getElementById('nav-back');
-    navNextBtn = document.getElementById('nav-next');
     if (navBackBtn) navBackBtn.onclick = goBack;
-    if (navNextBtn) navNextBtn.onclick = handleNavNext;
     render();
 });
-
-
-function handleNavNext() {
-    if (currentStep >= 1 && currentStep <= 5) {
-        nextDomain();
-    } else {
-        nextStep();
-    }
-}
-
