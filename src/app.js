@@ -39,6 +39,7 @@ const historyStack = [];
 
 let needColumns;
 const needCards = [];
+const needThumbs = [];
 
 const infoShown = {};
 const infoMessages = {
@@ -137,6 +138,33 @@ function createDomainCard(domain, progress) {
     return div;
 }
 
+function createNeedMiniCard(domain) {
+    const div = document.createElement('div');
+    div.className = 'need-mini-card';
+    const icon = document.createElement('i');
+    icon.className = `fa ${domain.icons[0]}`;
+    div.appendChild(icon);
+    const label = document.createElement('span');
+    label.textContent = domain.label;
+    div.appendChild(label);
+    return div;
+}
+
+function updateNeedColumn(col) {
+    const cards = Array.from(col.querySelectorAll('.need-mini-card'));
+    let badge = col.querySelector('.extra-indicator');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'extra-indicator';
+        col.appendChild(badge);
+    }
+    cards.forEach((c, idx) => {
+        c.style.display = idx < 6 ? 'flex' : 'none';
+    });
+    const extra = cards.length - 6;
+    badge.textContent = extra > 0 ? `+${extra} non affichée${extra > 1 ? 's' : ''}` : '';
+}
+
 function buildSummaryTable() {
     const table = document.createElement('table');
     table.id = 'diff-summary';
@@ -164,6 +192,55 @@ function buildSummaryTable() {
         table.appendChild(tr);
     }
     return table;
+}
+
+function buildProblemSummary() {
+    const container = document.createElement('div');
+    container.className = 'summary-container';
+
+    const probCol = document.createElement('div');
+    probCol.className = 'summary-column problem-column';
+    probCol.innerHTML = '<h3>Problème</h3>';
+
+    const okCol = document.createElement('div');
+    okCol.className = 'summary-column ok-column';
+    okCol.innerHTML = '<h3>Pas de problème</h3>';
+
+    let probTotal = 0;
+    let okTotal = 0;
+
+    domains.forEach((d, i) => {
+        const card = document.createElement('div');
+        card.className = 'summary-card';
+        const icon = document.createElement('i');
+        icon.className = `fa ${d.icons[0]}`;
+        card.appendChild(icon);
+        card.appendChild(document.createTextNode(d.label));
+        if (data.difficulties[i].presence) {
+            probTotal++;
+            if (probTotal <= 6) probCol.appendChild(card);
+        } else {
+            okTotal++;
+            if (okTotal <= 6) okCol.appendChild(card);
+        }
+    });
+
+    if (probTotal > 6) {
+        const badge = document.createElement('div');
+        badge.className = 'summary-extra';
+        badge.textContent = `+${probTotal - 6} autres`;
+        probCol.appendChild(badge);
+    }
+    if (okTotal > 6) {
+        const badge = document.createElement('div');
+        badge.className = 'summary-extra';
+        badge.textContent = `+${okTotal - 6} autres`;
+        okCol.appendChild(badge);
+    }
+
+    container.appendChild(probCol);
+    container.appendChild(okCol);
+    return container;
 }
 
 function nextStep() {
@@ -327,13 +404,17 @@ function renderNeedPresence() {
         needColumns.id = 'need-columns';
         const yesCol = document.createElement('div');
         yesCol.id = 'need-yes';
+        yesCol.className = 'need-column';
         yesCol.innerHTML = '<h3>Besoin</h3>';
         const noCol = document.createElement('div');
         noCol.id = 'need-no';
+        noCol.className = 'need-column';
         noCol.innerHTML = '<h3>Pas besoin</h3>';
         needColumns.appendChild(yesCol);
         needColumns.appendChild(noCol);
     }
+    updateNeedColumn(document.getElementById('need-yes'));
+    updateNeedColumn(document.getElementById('need-no'));
 
     const d = domains[currentDomain];
     let card = needCards[currentDomain];
@@ -356,7 +437,14 @@ function renderNeedPresence() {
     yesBtn.onclick = () => {
         const need = data.needs[currentDomain];
         need.presence = true;
-        document.getElementById('need-yes').appendChild(card);
+        let thumb = needThumbs[currentDomain];
+        if (!thumb) {
+            thumb = createNeedMiniCard(domains[currentDomain]);
+            needThumbs[currentDomain] = thumb;
+        }
+        document.getElementById('need-yes').appendChild(thumb);
+        updateNeedColumn(document.getElementById('need-yes'));
+        updateNeedColumn(document.getElementById('need-no'));
         transition(nextDomain);
     };
     const noBtn = document.createElement('button');
@@ -368,7 +456,14 @@ function renderNeedPresence() {
         need.urgency = 0;
         need.origin = '?';
         need.detail = '';
-        document.getElementById('need-no').appendChild(card);
+        let thumb = needThumbs[currentDomain];
+        if (!thumb) {
+            thumb = createNeedMiniCard(domains[currentDomain]);
+            needThumbs[currentDomain] = thumb;
+        }
+        document.getElementById('need-no').appendChild(thumb);
+        updateNeedColumn(document.getElementById('need-yes'));
+        updateNeedColumn(document.getElementById('need-no'));
         transition(nextDomain);
     };
     buttons.appendChild(yesBtn);
@@ -522,6 +617,9 @@ function renderResults() {
         div.appendChild(priorityP);
     }
 
+    // Summary of domains classified as problem or not
+    div.appendChild(buildProblemSummary());
+
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
 
@@ -646,3 +744,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navBackBtn) navBackBtn.onclick = goBack;
     render();
 });
+
+
+
+function handleNavNext() {
+    if (currentStep >= 1 && currentStep <= 5) {
+        nextDomain();
+    } else {
+        nextStep();
+    }
+}
+
+if (typeof module !== 'undefined') {
+module.exports = { createDomainCard, saveResults, data, buildProblemSummary };
+
+}
+
+
