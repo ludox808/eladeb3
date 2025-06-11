@@ -195,6 +195,55 @@ function buildSummaryTable() {
     return table;
 }
 
+function buildProblemSummary() {
+    const container = document.createElement('div');
+    container.className = 'summary-container';
+
+    const probCol = document.createElement('div');
+    probCol.className = 'summary-column problem-column';
+    probCol.innerHTML = '<h3>Problème</h3>';
+
+    const okCol = document.createElement('div');
+    okCol.className = 'summary-column ok-column';
+    okCol.innerHTML = '<h3>Pas de problème</h3>';
+
+    let probTotal = 0;
+    let okTotal = 0;
+
+    domains.forEach((d, i) => {
+        const card = document.createElement('div');
+        card.className = 'summary-card';
+        const icon = document.createElement('i');
+        icon.className = `fa ${d.icons[0]}`;
+        card.appendChild(icon);
+        card.appendChild(document.createTextNode(d.label));
+        if (data.difficulties[i].presence) {
+            probTotal++;
+            if (probTotal <= 6) probCol.appendChild(card);
+        } else {
+            okTotal++;
+            if (okTotal <= 6) okCol.appendChild(card);
+        }
+    });
+
+    if (probTotal > 6) {
+        const badge = document.createElement('div');
+        badge.className = 'summary-extra';
+        badge.textContent = `+${probTotal - 6} autres`;
+        probCol.appendChild(badge);
+    }
+    if (okTotal > 6) {
+        const badge = document.createElement('div');
+        badge.className = 'summary-extra';
+        badge.textContent = `+${okTotal - 6} autres`;
+        okCol.appendChild(badge);
+    }
+
+    container.appendChild(probCol);
+    container.appendChild(okCol);
+    return container;
+}
+
 function nextStep() {
     recordState();
     currentStep++;
@@ -573,6 +622,9 @@ function renderResults() {
         div.appendChild(priorityP);
     }
 
+    // Summary of domains classified as problem or not
+    div.appendChild(buildProblemSummary());
+
     const table = document.createElement('table');
     const header = '<tr><th>Domaine</th><th>Intensit\xE9 difficult\xE9</th><th>Urgence besoin</th><th>Origine</th><th>Précisions</th></tr>';
 
@@ -710,6 +762,7 @@ function handleNavNext() {
 }
 
 if (typeof module !== 'undefined') {
-    module.exports = { createDomainCard, saveResults, data };
+module.exports = { createDomainCard, saveResults, data, buildProblemSummary };
+
 }
 
