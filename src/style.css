@@ -150,6 +150,9 @@ th {
     border-radius: 8px;
     padding: 10px;
     min-height: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 .summary-column h3 {
     text-align: center;
@@ -159,15 +162,18 @@ th {
     background: #fff;
     border-radius: 4px;
     padding: 6px;
-    margin-bottom: 8px;
+    margin: 4px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    font-size: 14px;
+    font-size: 12px;
+    width: 100px;
+    text-align: center;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 .summary-card i {
-    margin-right: 6px;
+    margin-bottom: 4px;
     color: #2196F3;
     font-size: 20px;
 }
