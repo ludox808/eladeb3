@@ -743,12 +743,14 @@ function renderResults() {
 
 // Wait for the DOM to be fully loaded before initializing
 
-document.addEventListener('DOMContentLoaded', () => {
-    container = document.getElementById('step-container');
-    navBackBtn = document.getElementById('nav-back');
-    if (navBackBtn) navBackBtn.onclick = goBack;
-    render();
-});
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        container = document.getElementById('step-container');
+        navBackBtn = document.getElementById('nav-back');
+        if (navBackBtn) navBackBtn.onclick = goBack;
+        if (container) render();
+    });
+}
 
 
 
