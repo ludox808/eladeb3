@@ -742,20 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
 });
 
-
-
-function handleNavNext() {
-    if ((currentStep >= 1 && currentStep <= 3) ||
-        (currentStep >= 5 && currentStep <= 6)) {
-        nextDomain();
-    } else {
-        nextStep();
-    }
-}
-
 if (typeof module !== 'undefined') {
 module.exports = { createDomainCard, saveResults, data, buildProblemSummary };
-
 }
-
-
