@@ -159,6 +159,27 @@ function updateNeedColumn(col) {
     if (badge) badge.remove();
 }
 
+function ensureNeedColumns() {
+    if (!needColumns || !needColumns.isConnected) {
+        needColumns = document.createElement('div');
+        needColumns.id = 'need-columns';
+        const yesCol = document.createElement('div');
+        yesCol.id = 'need-yes';
+        yesCol.className = 'need-column';
+        yesCol.innerHTML = '<h3>Besoin</h3>';
+        const noCol = document.createElement('div');
+        noCol.id = 'need-no';
+        noCol.className = 'need-column';
+        noCol.innerHTML = '<h3>Pas besoin</h3>';
+        needColumns.appendChild(yesCol);
+        needColumns.appendChild(noCol);
+    }
+    return {
+        yes: needColumns.querySelector('#need-yes'),
+        no: needColumns.querySelector('#need-no')
+    };
+}
+
 function buildSummaryTable() {
     const table = document.createElement('table');
     table.id = 'diff-summary';
@@ -378,25 +399,9 @@ function renderNeedPresence() {
         nextStep();
         return;
     }
-    if (!needColumns) {
-        needColumns = document.createElement('div');
-        needColumns.id = 'need-columns';
-        const yesCol = document.createElement('div');
-        yesCol.id = 'need-yes';
-        yesCol.className = 'need-column';
-        yesCol.innerHTML = '<h3>Besoin</h3>';
-        const noCol = document.createElement('div');
-        noCol.id = 'need-no';
-        noCol.className = 'need-column';
-        noCol.innerHTML = '<h3>Pas besoin</h3>';
-        needColumns.appendChild(yesCol);
-        needColumns.appendChild(noCol);
-        updateNeedColumn(yesCol);
-        updateNeedColumn(noCol);
-    } else {
-        updateNeedColumn(document.getElementById('need-yes'));
-        updateNeedColumn(document.getElementById('need-no'));
-    }
+    const cols = ensureNeedColumns();
+    updateNeedColumn(cols.yes);
+    updateNeedColumn(cols.no);
 
     const d = domains[currentDomain];
     let card = needCards[currentDomain];
@@ -424,9 +429,10 @@ function renderNeedPresence() {
             thumb = createNeedMiniCard(domains[currentDomain]);
             needThumbs[currentDomain] = thumb;
         }
-        document.getElementById('need-yes').appendChild(thumb);
-        updateNeedColumn(document.getElementById('need-yes'));
-        updateNeedColumn(document.getElementById('need-no'));
+        const cols = ensureNeedColumns();
+        cols.yes.appendChild(thumb);
+        updateNeedColumn(cols.yes);
+        updateNeedColumn(cols.no);
         transition(nextDomain);
     };
     const noBtn = document.createElement('button');
@@ -443,9 +449,10 @@ function renderNeedPresence() {
             thumb = createNeedMiniCard(domains[currentDomain]);
             needThumbs[currentDomain] = thumb;
         }
-        document.getElementById('need-no').appendChild(thumb);
-        updateNeedColumn(document.getElementById('need-yes'));
-        updateNeedColumn(document.getElementById('need-no'));
+        const cols = ensureNeedColumns();
+        cols.no.appendChild(thumb);
+        updateNeedColumn(cols.yes);
+        updateNeedColumn(cols.no);
         transition(nextDomain);
     };
     buttons.appendChild(yesBtn);
@@ -458,8 +465,9 @@ function renderNeedPresence() {
 
 function renderNeeds() {
     if (!needColumns) return nextStep();
-    updateNeedColumn(document.getElementById('need-yes'));
-    updateNeedColumn(document.getElementById('need-no'));
+    const cols = ensureNeedColumns();
+    updateNeedColumn(cols.yes);
+    updateNeedColumn(cols.no);
     const div = document.createElement('div');
     div.innerHTML = '<h2>Besoins identifiés</h2>';
     container.appendChild(div);
